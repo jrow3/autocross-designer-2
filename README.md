@@ -1,31 +1,42 @@
----
-date: 2026-04-16
-tags: [project, web-app, autocross, javascript]
-status: active
-type: project
-tech: [javascript, html, css, mapbox]
----
+# sv
 
-# Autocross Designer
+Everything you need to build a Svelte project, powered by [`sv`](https://github.com/sveltejs/cli).
 
-Browser-based tool for designing autocross courses with cone placement, driving lines, and measurement capabilities. Supports satellite imagery via Mapbox and static image backgrounds.
+## Creating a project
 
-## Tech Stack
-- Vanilla JavaScript / HTML / CSS
-- Mapbox for satellite map integration
-- GitHub Pages deployment with GitHub Actions CI
-- No build step required
+If you're seeing this, you've probably already done this step. Congrats!
 
-## Features
-- Map mode and image mode for course backgrounds
-- Cone placement, gates, slaloms, obstacles
-- Distance measurement and driving line drawing
-- Undo/redo, URL sharing, browser autosave
+```sh
+# create a new project
+npx sv create my-app
+```
 
-## Related Projects
-- [[autox-tools]] — SCCA design system and static site
-- [[autocross-rankings]] — SCCA driver ranking system
-- [[scca-tools]] — SCCA financial analysis
+To recreate this project with the same configuration:
 
-## Source
-Code is in `./src/`. Original: `C:\Users\apriestofgix\claude projects\autocross-designer`
+```sh
+# recreate this project
+npx sv@0.15.1 create --template minimal --types ts --no-install autocross-designer-2-temp
+```
+
+## Developing
+
+Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
+
+```sh
+npm run dev
+
+# or start the server and open the app in a new browser tab
+npm run dev -- --open
+```
+
+## Building
+
+To create a production version of your app:
+
+```sh
+npm run build
+```
+
+You can preview the production build with `npm run preview`.
+
+> To deploy your app, you may need to install an [adapter](https://svelte.dev/docs/kit/adapters) for your target environment.
