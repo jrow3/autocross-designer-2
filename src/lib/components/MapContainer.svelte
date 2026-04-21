@@ -484,7 +484,9 @@
 	});
 </script>
 
-<div class="map-container" bind:this={container}>
+<div class="map-outer">
+	<div class="map-container" bind:this={container}></div>
+
 	{#if showBanner}
 		<ModeBanner onselect={handleModeSelect} />
 	{/if}
@@ -554,10 +556,15 @@
 {/if}
 
 <style>
-	.map-container {
+	.map-outer {
 		flex: 1;
 		position: relative;
 		--marker-scale: 1;
+	}
+
+	.map-container {
+		position: absolute;
+		inset: 0;
 	}
 
 	.map-container :global(.mapboxgl-canvas-container) {
