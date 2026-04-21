@@ -415,6 +415,7 @@
 		}
 
 		mapboxgl.accessToken = token;
+		mapboxgl.workerUrl = '/mapbox-gl-csp-worker.js';
 
 		const map = new mapboxgl.Map({
 			container,
