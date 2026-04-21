@@ -1,4 +1,5 @@
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
+import { getCreatorToken } from './creatorToken';
 
 let client: SupabaseClient | null = null;
 
@@ -10,7 +11,11 @@ export function getSupabase(): SupabaseClient | null {
 
 	if (!url || !key) return null;
 
-	client = createClient(url, key);
+	client = createClient(url, key, {
+		global: {
+			headers: { 'x-creator-token': getCreatorToken() }
+		}
+	});
 	return client;
 }
 
