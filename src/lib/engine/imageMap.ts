@@ -153,7 +153,7 @@ export class ImageMap {
 
 	constructor(container: HTMLElement, imageSrc: string) {
 		this._container = container;
-		this._container.style.cssText += ';overflow:hidden;position:relative;background:#111;';
+		this._container.style.cssText += ';overflow:hidden;background:#111;';
 
 		this._wrapper = document.createElement('div');
 		this._wrapper.style.cssText = 'position:absolute;top:0;left:0;transform-origin:0 0;';
