@@ -5,7 +5,7 @@
 	import { mapStore } from '$lib/stores/mapStore.svelte';
 	import { toolStore } from '$lib/stores/toolStore.svelte';
 	import { courseStore } from '$lib/stores/courseStore.svelte';
-	import { computeGateCones } from '$lib/engine/gateLogic';
+	import { computeGateCones, computeDirectionalCones } from '$lib/engine/gateLogic';
 	import { computeSlalomPositions } from '$lib/engine/slalomLogic';
 	import { ImageMap } from '$lib/engine/imageMap';
 	import type { LngLat } from '$lib/types/course';
@@ -47,6 +47,7 @@
 
 	// Scale calibration state
 	let scalePoint1: LngLat | null = $state(null);
+	let scalePoint1Marker: ReturnType<typeof createMarker> | null = null;
 	let scalePixelDist: number = $state(0);
 	let showScaleDialog = $state(false);
 
@@ -68,7 +69,14 @@
 			const { left, right } = computeGateCones(
 				gateCenter, mousePos, toolStore.gateWidthFeet, mapStore.mode
 			);
-			return [left, right];
+			const positions: LngLat[] = [left, right];
+			if (toolStore.gateDirectionalCones) {
+				const { leftDirectional, rightDirectional } = computeDirectionalCones(
+					gateCenter, mousePos, toolStore.gateWidthFeet, mapStore.mode
+				);
+				positions.push(leftDirectional, rightDirectional);
+			}
+			return positions;
 		}
 		if (slalomStart && !slalomEnd && toolStore.activeTool === 'slalom') {
 			const spacing = toolStore.slalomSpacingFeet;
@@ -88,9 +96,11 @@
 		const map = mapStore.map;
 		if (!map || ghostPositions.length === 0) return;
 
-		for (const pos of ghostPositions) {
+		for (let i = 0; i < ghostPositions.length; i++) {
+			const pos = ghostPositions[i];
 			const inner = document.createElement('div');
-			inner.className = 'cone-marker marker-regular ghost-marker';
+			const isDirectional = i >= 2 && toolStore.activeTool === 'gate';
+			inner.className = `cone-marker ${isDirectional ? 'marker-pointer' : 'marker-regular'} ghost-marker`;
 			const wrapper = wrapForMapbox(inner);
 			const m = createMarker({ element: wrapper })
 				.setLngLat(pos as [number, number])
@@ -182,6 +192,13 @@
 			);
 			courseStore.addCone({ id: generateId(), type: 'regular', lngLat: left, lockedTargetId: null });
 			courseStore.addCone({ id: generateId(), type: 'regular', lngLat: right, lockedTargetId: null });
+			if (toolStore.gateDirectionalCones) {
+				const { leftDirectional, rightDirectional } = computeDirectionalCones(
+					gateCenter, lngLat, toolStore.gateWidthFeet, mapStore.mode
+				);
+				courseStore.addCone({ id: generateId(), type: 'pointer', lngLat: leftDirectional, lockedTargetId: null });
+				courseStore.addCone({ id: generateId(), type: 'pointer', lngLat: rightDirectional, lockedTargetId: null });
+			}
 			gateCenter = null;
 			toolStore.clearStatus();
 		}
@@ -242,6 +259,12 @@
 	function handleScaleClick(lngLat: LngLat) {
 		if (!scalePoint1) {
 			scalePoint1 = lngLat;
+			const map = mapStore.map!;
+			const el = document.createElement('div');
+			el.className = 'measurement-endpoint';
+			scalePoint1Marker = createMarker({ element: el })
+				.setLngLat(lngLat as [number, number])
+				.addTo(map);
 			toolStore.setStatus('Click the second point to set scale');
 		} else {
 			const dx = lngLat[0] - scalePoint1[0];
@@ -249,6 +272,8 @@
 			scalePixelDist = Math.sqrt(dx * dx + dy * dy);
 			showScaleDialog = true;
 			scalePoint1 = null;
+			scalePoint1Marker?.remove();
+			scalePoint1Marker = null;
 			toolStore.clearStatus();
 		}
 	}
@@ -265,6 +290,8 @@
 	function handleScaleCancel() {
 		showScaleDialog = false;
 		scalePoint1 = null;
+		scalePoint1Marker?.remove();
+		scalePoint1Marker = null;
 		toolStore.clearStatus();
 	}
 
@@ -377,6 +404,8 @@
 			slalomEnd = null;
 		}
 		scalePoint1 = null;
+		scalePoint1Marker?.remove();
+		scalePoint1Marker = null;
 		measurementOverlay?.cancelPending();
 		outlineOverlay?.cancelPending();
 	});

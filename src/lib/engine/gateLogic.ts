@@ -1,8 +1,15 @@
 import type { LngLat } from '$lib/types/course';
 
+const DIRECTIONAL_OFFSET_FEET = 3;
+
 interface GateCones {
 	left: LngLat;
 	right: LngLat;
+}
+
+interface DirectionalCones {
+	leftDirectional: LngLat;
+	rightDirectional: LngLat;
 }
 
 export function computeGateCones(
@@ -43,5 +50,21 @@ export function computeGateCones(
 	return {
 		left: [center[0] + offsetLng, center[1] + offsetLat],
 		right: [center[0] - offsetLng, center[1] - offsetLat]
+	};
+}
+
+export function computeDirectionalCones(
+	center: LngLat,
+	direction: LngLat,
+	gateWidthFeet: number,
+	mode: 'map' | 'image',
+	feetPerPixel?: number
+): DirectionalCones {
+	const extended = computeGateCones(
+		center, direction, gateWidthFeet + 2 * DIRECTIONAL_OFFSET_FEET, mode, feetPerPixel
+	);
+	return {
+		leftDirectional: extended.left,
+		rightDirectional: extended.right
 	};
 }

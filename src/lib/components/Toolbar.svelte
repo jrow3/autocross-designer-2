@@ -52,6 +52,14 @@
 								<span class="inline-unit">ft</span>
 							</div>
 						</label>
+						<label class="inline-checkbox">
+							<input
+								type="checkbox"
+								checked={toolStore.gateDirectionalCones}
+								onchange={(e) => toolStore.setGateDirectionalCones((e.target as HTMLInputElement).checked)}
+							/>
+							<span>Directional</span>
+						</label>
 					</div>
 				{/if}
 				<ToolButton tool="slalom" label="Slalom" title="Place slalom (2-click)" />
@@ -227,6 +235,19 @@
 	.inline-unit {
 		font-size: 11px;
 		color: var(--text-dim);
+	}
+
+	.inline-checkbox {
+		display: flex;
+		align-items: center;
+		gap: 6px;
+		font-size: 12px;
+		color: var(--text-muted);
+		margin-top: 4px;
+	}
+
+	.inline-checkbox input {
+		accent-color: var(--accent);
 	}
 
 	.inline-select {

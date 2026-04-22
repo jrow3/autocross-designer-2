@@ -23,6 +23,7 @@ import type { ObstacleTypeId } from '$lib/types/course';
 let activeTool = $state<Tool>('regular');
 let previousTool = $state<Tool>('regular');
 let gateWidthFeet = $state(20);
+let gateDirectionalCones = $state(false);
 let slalomSpacingFeet = $state(75);
 let selectedObstacleType = $state<ObstacleTypeId>('pole');
 let statusMessage = $state('');
@@ -34,6 +35,10 @@ export const toolStore = {
 
 	get gateWidthFeet() {
 		return gateWidthFeet;
+	},
+
+	get gateDirectionalCones() {
+		return gateDirectionalCones;
 	},
 
 	get slalomSpacingFeet() {
@@ -67,6 +72,10 @@ export const toolStore = {
 
 	setGateWidth(feet: number): void {
 		gateWidthFeet = feet;
+	},
+
+	setGateDirectionalCones(enabled: boolean): void {
+		gateDirectionalCones = enabled;
 	},
 
 	setSlalomSpacing(feet: number): void {
