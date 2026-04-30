@@ -566,30 +566,23 @@ import SketchOverlay from './SketchOverlay.svelte';
 
 		if (points.length === 0) return;
 
-		const tagged: { type: string; pt: LngLat }[] = [];
-		for (const c of course.cones) tagged.push({ type: `cone:${c.id}`, pt: c.lngLat });
-		for (const wp of course.drivingLine) tagged.push({ type: 'waypoint', pt: wp.lngLat });
-		for (const m of course.measurements) { tagged.push({ type: 'measure-p1', pt: m.p1 }); tagged.push({ type: 'measure-p2', pt: m.p2 }); }
-		for (const n of course.notes) tagged.push({ type: `note:${n.id}`, pt: n.lngLat });
-		for (const o of course.obstacles) tagged.push({ type: `obstacle:${o.id}`, pt: o.lngLat });
-		for (const w of course.workers) tagged.push({ type: `worker:${w.id}`, pt: w.lngLat });
-		for (const s of course.courseOutline) { tagged.push({ type: 'outline-p1', pt: s.p1 }); tagged.push({ type: 'outline-p2', pt: s.p2 }); }
-
-		// Find outliers — points far from the median
-		const lngs = tagged.map(t => t.pt[0]).sort((a, b) => a - b);
+		// Filter outliers: remove points far from the median cluster
+		const lngs = points.map(p => p[0]).sort((a, b) => a - b);
+		const lats = points.map(p => p[1]).sort((a, b) => a - b);
 		const medLng = lngs[Math.floor(lngs.length / 2)];
-		const outliers = tagged.filter(t => Math.abs(t.pt[0] - medLng) > 1);
-		if (outliers.length > 0) console.warn('[fitBounds] OUTLIER elements far from cluster:', outliers);
+		const medLat = lats[Math.floor(lats.length / 2)];
+		const filtered = points.filter(p =>
+			Math.abs(p[0] - medLng) < 1 && Math.abs(p[1] - medLat) < 1
+		);
+		const fitPoints = filtered.length > 0 ? filtered : points;
 
 		let minLng = Infinity, maxLng = -Infinity, minLat = Infinity, maxLat = -Infinity;
-		for (const [lng, lat] of points) {
+		for (const [lng, lat] of fitPoints) {
 			if (lng < minLng) minLng = lng;
 			if (lng > maxLng) maxLng = lng;
 			if (lat < minLat) minLat = lat;
 			if (lat > maxLat) maxLat = lat;
 		}
-
-		console.log('[fitBounds] bounds:', { minLng, maxLng, minLat, maxLat });
 
 		(map as mapboxgl.Map).fitBounds(
 			[[minLng, minLat], [maxLng, maxLat]],
