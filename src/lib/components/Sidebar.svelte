@@ -11,7 +11,10 @@
 	import type { LayerKey } from '$lib/stores/layerStore.svelte';
 	import type { CourseData } from '$lib/types/course';
 
-	let { onfitcourse }: { onfitcourse?: (data: CourseData) => void } = $props();
+	let { onfitcourse, oncourseopened }: {
+		onfitcourse?: (data: CourseData) => void;
+		oncourseopened?: (course: SavedCourse) => void;
+	} = $props();
 
 	let collapsed = $state(false);
 	let myCourses = $state<SavedCourse[]>([]);
@@ -61,6 +64,7 @@
 			const data = deserialize(saved.data);
 			courseStore.load(data);
 			onfitcourse?.(data);
+			oncourseopened?.(saved);
 		}
 	}
 

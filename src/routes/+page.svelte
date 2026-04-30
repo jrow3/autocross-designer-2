@@ -11,12 +11,14 @@
 	import { deserialize } from '$lib/engine/courseSerializer';
 	import { exportJSON, importJSON } from '$lib/services/jsonExport';
 	import { downloadSVG } from '$lib/engine/svgExport';
+	import type { SavedCourse } from '$lib/services/courseService';
 
 	let mapContainer = $state<MapContainer>();
 
 	let showSaveDialog = $state(false);
 	let showPrintDialog = $state(false);
 	let showHelpDialog = $state(false);
+	let activeCourse = $state<SavedCourse | null>(null);
 	let fileInput: HTMLInputElement;
 
 	async function handleImport(e: Event) {
@@ -44,11 +46,18 @@
 			<ToolStatus />
 		</div>
 	</main>
-	<Sidebar onfitcourse={(data) => mapContainer?.fitBoundsToCourse(data)} />
+	<Sidebar
+		onfitcourse={(data) => mapContainer?.fitBoundsToCourse(data)}
+		oncourseopened={(course) => activeCourse = course}
+	/>
 </div>
 
 {#if showSaveDialog}
-	<SaveShareDialog onclose={() => (showSaveDialog = false)} />
+	<SaveShareDialog
+		existingCourse={activeCourse}
+		onclose={() => (showSaveDialog = false)}
+		onsaved={(course) => activeCourse = course}
+	/>
 {/if}
 
 {#if showPrintDialog}

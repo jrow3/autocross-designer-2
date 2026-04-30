@@ -7,10 +7,12 @@
 
 	let {
 		existingCourse = null,
-		onclose
+		onclose,
+		onsaved
 	}: {
 		existingCourse?: SavedCourse | null;
 		onclose: () => void;
+		onsaved?: (course: SavedCourse) => void;
 	} = $props();
 
 	const initialTitle = existingCourse?.title ?? '';
@@ -22,6 +24,21 @@
 
 	const configured = isSupabaseConfigured();
 
+	// Auto-save if updating an existing course
+	if (existingCourse && configured) {
+		(async () => {
+			saving = true;
+			const ok = await updateCourse(existingCourse.id, existingCourse.title, courseStore.course);
+			if (ok) {
+				savedUrl = shareUrl(existingCourse.id);
+				onsaved?.({ ...existingCourse });
+			} else {
+				error = 'Failed to update course';
+			}
+			saving = false;
+		})();
+	}
+
 	async function handleSave() {
 		const trimmed = title.trim();
 		if (!trimmed) return;
@@ -30,12 +47,20 @@
 
 		if (existingCourse) {
 			const ok = await updateCourse(existingCourse.id, trimmed, courseStore.course);
-			if (ok) savedUrl = shareUrl(existingCourse.id);
-			else error = 'Failed to update course';
+			if (ok) {
+				savedUrl = shareUrl(existingCourse.id);
+				onsaved?.({ ...existingCourse, title: trimmed });
+			} else {
+				error = 'Failed to update course';
+			}
 		} else {
 			const result = await saveCourse(trimmed, courseStore.course);
-			if (result) savedUrl = shareUrl(result.id);
-			else error = 'Failed to save course';
+			if (result) {
+				savedUrl = shareUrl(result.id);
+				onsaved?.(result);
+			} else {
+				error = 'Failed to save course';
+			}
 		}
 		saving = false;
 	}
@@ -51,7 +76,7 @@
 	}
 </script>
 
-<BaseDialog title={savedUrl ? 'Course Saved!' : configured ? (existingCourse ? 'Update Course' : 'Save & Share') : 'Save & Share'} onclose={onclose}>
+<BaseDialog title={savedUrl ? `Saved "${existingCourse?.title ?? title.trim()}"` : saving ? 'Saving...' : configured ? 'Save & Share' : 'Save & Share'} onclose={onclose}>
 	{#snippet children()}
 		{#if !configured}
 			<p class="dialog-desc" style="color: var(--danger)">
