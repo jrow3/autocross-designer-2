@@ -204,6 +204,17 @@ export const courseStore = {
 	},
 
 	load(data: CourseData): void {
+		// Deduplicate IDs to prevent keyed {#each} crashes
+		const seen = new Set<string>();
+		let nextDedup = Date.now();
+		for (const arr of [data.cones, data.obstacles, data.workers, data.notes, data.sketches ?? []]) {
+			for (const item of arr) {
+				if (seen.has(item.id)) {
+					item.id = String(nextDedup++);
+				}
+				seen.add(item.id);
+			}
+		}
 		Object.assign(course, data);
 		undoStack.length = 0;
 		redoStack.length = 0;
