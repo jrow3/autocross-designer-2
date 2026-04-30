@@ -107,11 +107,11 @@
 	}
 
 	export function deleteSelected() {
-		for (const item of selectionStore.selected) {
-			if (item.type === 'sketch') {
-				courseStore.pushUndo();
-				courseStore.removeSketch(item.id);
-			}
+		const sketches = selectionStore.selected.filter((s) => s.type === 'sketch');
+		if (sketches.length === 0) return;
+		courseStore.pushUndo();
+		for (const item of sketches) {
+			courseStore.removeSketch(item.id);
 		}
 		selectionStore.clear();
 		updateSource();
