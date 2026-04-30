@@ -26,6 +26,7 @@
 		if (!course) return;
 		const data = deserialize(course.data);
 		courseStore.load(data);
+		sessionStorage.setItem('fitCourseOnLoad', 'true');
 		goto('/');
 	}
 </script>

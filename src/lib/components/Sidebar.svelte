@@ -10,6 +10,8 @@
 	import { isSupabaseConfigured } from '$lib/services/supabase';
 	import type { LayerKey } from '$lib/stores/layerStore.svelte';
 
+	let { onfitcourse }: { onfitcourse?: () => void } = $props();
+
 	let collapsed = $state(false);
 	let myCourses = $state<SavedCourse[]>([]);
 	let loadingCourses = $state(false);
@@ -56,6 +58,7 @@
 		const saved = await loadCourse(id);
 		if (saved) {
 			courseStore.load(deserialize(saved.data));
+			onfitcourse?.();
 		}
 	}
 </script>

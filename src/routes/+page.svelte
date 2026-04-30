@@ -12,6 +12,8 @@
 	import { exportJSON, importJSON } from '$lib/services/jsonExport';
 	import { downloadSVG } from '$lib/engine/svgExport';
 
+	let mapContainer = $state<MapContainer>();
+
 	let showSaveDialog = $state(false);
 	let showPrintDialog = $state(false);
 	let showHelpDialog = $state(false);
@@ -38,11 +40,11 @@
 			onhelp={() => (showHelpDialog = true)}
 		/>
 		<div class="map-wrapper">
-			<MapContainer />
+			<MapContainer bind:this={mapContainer} />
 			<ToolStatus />
 		</div>
 	</main>
-	<Sidebar />
+	<Sidebar onfitcourse={() => mapContainer?.fitBoundsToCourse()} />
 </div>
 
 {#if showSaveDialog}

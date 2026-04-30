@@ -485,6 +485,10 @@ import SketchOverlay from './SketchOverlay.svelte';
 		map.on('load', () => {
 			mapStore.setMap(map);
 			initBoxSelection();
+			if (sessionStorage.getItem('fitCourseOnLoad')) {
+				sessionStorage.removeItem('fitCourseOnLoad');
+				setTimeout(() => fitBoundsToCourse(), 100);
+			}
 			document.addEventListener('keydown', (e) => {
 				if (e.key === 'Delete' || e.key === 'Backspace') {
 					sketchOverlay?.deleteSelected();
@@ -541,6 +545,38 @@ import SketchOverlay from './SketchOverlay.svelte';
 				sketchOverlay?.deleteSelected();
 			}
 		});
+	}
+
+	export function fitBoundsToCourse() {
+		const map = mapStore.map;
+		if (!map || !('fitBounds' in map)) return;
+
+		const points: LngLat[] = [];
+		for (const c of courseStore.course.cones) points.push(c.lngLat);
+		for (const wp of courseStore.course.drivingLine) points.push(wp.lngLat);
+		for (const m of courseStore.course.measurements) { points.push(m.p1); points.push(m.p2); }
+		for (const n of courseStore.course.notes) points.push(n.lngLat);
+		for (const o of courseStore.course.obstacles) points.push(o.lngLat);
+		for (const w of courseStore.course.workers) points.push(w.lngLat);
+		for (const s of courseStore.course.courseOutline) { points.push(s.p1); points.push(s.p2); }
+		for (const sk of courseStore.course.sketches) {
+			for (const p of sk.points) points.push(p);
+		}
+
+		if (points.length === 0) return;
+
+		let minLng = Infinity, maxLng = -Infinity, minLat = Infinity, maxLat = -Infinity;
+		for (const [lng, lat] of points) {
+			if (lng < minLng) minLng = lng;
+			if (lng > maxLng) maxLng = lng;
+			if (lat < minLat) minLat = lat;
+			if (lat > maxLat) maxLat = lat;
+		}
+
+		(map as mapboxgl.Map).fitBounds(
+			[[minLng, minLat], [maxLng, maxLat]],
+			{ padding: 0, animate: false }
+		);
 	}
 
 	onMount(() => {
