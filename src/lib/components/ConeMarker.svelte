@@ -248,7 +248,8 @@
 		height: 14px;
 		border-radius: 50%;
 		transform: scale(var(--marker-scale, 1));
-		filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.4));
+		filter: drop-shadow(0 0 3px rgba(0, 0, 0, 0.7));
+		border: 1px solid rgba(0, 0, 0, 0.6);
 	}
 
 	:global(.marker-regular) {
