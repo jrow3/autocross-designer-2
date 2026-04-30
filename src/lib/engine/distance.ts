@@ -40,3 +40,29 @@ export function distanceFeet(
 	}
 	return haversineFeet(a, b);
 }
+
+const FEET_TO_METERS = 1 / METERS_TO_FEET;
+
+export function feetToLngLatOffset(
+	origin: LngLat,
+	angleDeg: number,
+	feet: number
+): LngLat {
+	const meters = feet * FEET_TO_METERS;
+	const angleRad = angleDeg * Math.PI / 180;
+	const dLat = (meters * Math.cos(angleRad)) / EARTH_RADIUS_M * (180 / Math.PI);
+	const cosLat = Math.cos(origin[1] * Math.PI / 180);
+	const dLng = (meters * Math.sin(angleRad)) / (EARTH_RADIUS_M * cosLat) * (180 / Math.PI);
+	return [origin[0] + dLng, origin[1] + dLat];
+}
+
+export function feetToPixelOffset(
+	origin: LngLat,
+	angleDeg: number,
+	feet: number,
+	feetPerPixel: number
+): LngLat {
+	const pixels = feet / feetPerPixel;
+	const angleRad = angleDeg * Math.PI / 180;
+	return [origin[0] + pixels * Math.sin(angleRad), origin[1] - pixels * Math.cos(angleRad)];
+}

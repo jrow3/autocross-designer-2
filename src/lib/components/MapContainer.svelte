@@ -6,6 +6,7 @@
 	import { toolStore } from '$lib/stores/toolStore.svelte';
 	import { courseStore } from '$lib/stores/courseStore.svelte';
 	import { computeGateCones, computeDirectionalCones } from '$lib/engine/gateLogic';
+	import { offsetPointerPosition } from '$lib/engine/coneLogic';
 	import { computeSlalomPositions } from '$lib/engine/slalomLogic';
 	import { ImageMap } from '$lib/engine/imageMap';
 	import type { LngLat } from '$lib/types/course';
@@ -116,7 +117,6 @@
 
 		switch (tool) {
 			case 'regular':
-			case 'pointer':
 			case 'start-cone':
 			case 'finish-cone':
 			case 'trailer':
@@ -124,6 +124,18 @@
 				courseStore.pushUndo();
 				courseStore.addCone({ id: generateId(), type: tool, lngLat, lockedTargetId: null });
 				break;
+
+			case 'pointer': {
+				const feetPerPixel = mapStore.mode === 'image' && mapStore.map && 'getScale' in mapStore.map
+					? mapStore.map.getScale()
+					: undefined;
+				const pointerPos = offsetPointerPosition(
+					lngLat, courseStore.course.cones, mapStore.mode, feetPerPixel
+				);
+				courseStore.pushUndo();
+				courseStore.addCone({ id: generateId(), type: 'pointer', lngLat: pointerPos, lockedTargetId: null });
+				break;
+			}
 
 			case 'gate':
 				handleGateClick(lngLat);
