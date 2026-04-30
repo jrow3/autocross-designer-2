@@ -566,6 +566,9 @@ import SketchOverlay from './SketchOverlay.svelte';
 
 		if (points.length === 0) return;
 
+		console.log('[fitBounds] points count:', points.length, 'source:', data ? 'passed data' : 'store');
+		console.log('[fitBounds] sample points:', points.slice(0, 3));
+
 		let minLng = Infinity, maxLng = -Infinity, minLat = Infinity, maxLat = -Infinity;
 		for (const [lng, lat] of points) {
 			if (lng < minLng) minLng = lng;
@@ -573,6 +576,8 @@ import SketchOverlay from './SketchOverlay.svelte';
 			if (lat < minLat) minLat = lat;
 			if (lat > maxLat) maxLat = lat;
 		}
+
+		console.log('[fitBounds] bounds:', { minLng, maxLng, minLat, maxLat });
 
 		(map as mapboxgl.Map).fitBounds(
 			[[minLng, minLat], [maxLng, maxLat]],
