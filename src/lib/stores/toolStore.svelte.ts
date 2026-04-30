@@ -14,7 +14,8 @@ export type Tool =
 	| 'measure'
 	| 'courseoutline'
 	| 'note'
-	| 'scale';
+	| 'scale'
+	| 'sketch';
 
 const CONE_TOOLS: Tool[] = ['regular', 'pointer', 'start-cone', 'finish-cone', 'gate', 'slalom'];
 

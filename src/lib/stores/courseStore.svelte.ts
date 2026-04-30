@@ -1,4 +1,4 @@
-import { type CourseData, type ConeData, type ObstacleData, type WorkerData, type NoteData, type WaypointData, type MeasurementData, type OutlineSegmentData, type LngLat } from '$lib/types/course';
+import { type CourseData, type ConeData, type ObstacleData, type WorkerData, type NoteData, type WaypointData, type MeasurementData, type OutlineSegmentData, type SketchData, type LngLat } from '$lib/types/course';
 import { emptyCourse } from '$lib/engine/courseSerializer';
 
 const MAX_SNAPSHOTS = 50;
@@ -20,6 +20,7 @@ function restore(json: string): void {
 	course.obstacles = data.obstacles;
 	course.workers = data.workers;
 	course.courseOutline = data.courseOutline;
+	course.sketches = data.sketches;
 }
 
 export const courseStore = {
@@ -186,6 +187,15 @@ export const courseStore = {
 	updateOutlineControlPoint(index: number, lngLat: LngLat): void {
 		const seg = course.courseOutline[index];
 		if (seg) seg.cp = lngLat;
+	},
+
+	addSketch(sketch: SketchData): void {
+		course.sketches.push(sketch);
+	},
+
+	removeSketch(id: string): void {
+		const idx = course.sketches.findIndex((s) => s.id === id);
+		if (idx !== -1) course.sketches.splice(idx, 1);
 	},
 
 	setMapView(center: LngLat, zoom: number): void {

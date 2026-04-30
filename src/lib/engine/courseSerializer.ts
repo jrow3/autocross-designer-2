@@ -10,7 +10,8 @@ const ARRAY_FIELDS = [
 	'notes',
 	'obstacles',
 	'workers',
-	'courseOutline'
+	'courseOutline',
+	'sketches'
 ] as const;
 
 export function emptyCourse(): CourseData {
@@ -23,6 +24,7 @@ export function emptyCourse(): CourseData {
 		obstacles: [],
 		workers: [],
 		courseOutline: [],
+		sketches: [],
 		mapCenter: [-96.7694672, 40.8446702],
 		mapZoom: 18
 	};

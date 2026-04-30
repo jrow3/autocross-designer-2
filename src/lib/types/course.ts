@@ -51,6 +51,11 @@ export interface OutlineSegmentData {
 	cp: LngLat;
 }
 
+export interface SketchData {
+	id: string;
+	points: LngLat[];
+}
+
 export interface CourseData {
 	schemaVersion: number;
 	cones: ConeData[];
@@ -60,6 +65,7 @@ export interface CourseData {
 	obstacles: ObstacleData[];
 	workers: WorkerData[];
 	courseOutline: OutlineSegmentData[];
+	sketches: SketchData[];
 	mapCenter: LngLat;
 	mapZoom: number;
 	imageMode?: boolean;
