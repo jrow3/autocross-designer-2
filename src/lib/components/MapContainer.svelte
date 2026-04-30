@@ -535,6 +535,12 @@ import SketchOverlay from './SketchOverlay.svelte';
 			const center = imageMap.getCenter();
 			courseStore.setMapView([center.lng, center.lat], imageMap.getZoom());
 		});
+
+		document.addEventListener('keydown', (e) => {
+			if (e.key === 'Delete' || e.key === 'Backspace') {
+				sketchOverlay?.deleteSelected();
+			}
+		});
 	}
 
 	onMount(() => {
