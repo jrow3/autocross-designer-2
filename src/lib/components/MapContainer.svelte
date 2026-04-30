@@ -470,7 +470,10 @@ import SketchOverlay from './SketchOverlay.svelte';
 			zoom: courseStore.course.mapZoom,
 			minZoom: 10,
 			maxZoom: 22,
-			preserveDrawingBuffer: true
+			preserveDrawingBuffer: true,
+			dragRotate: false,
+			pitchWithRotate: false,
+			touchPitch: false
 		});
 
 		map.addControl(new mapboxgl.NavigationControl(), 'bottom-right');
