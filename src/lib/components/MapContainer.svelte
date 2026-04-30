@@ -33,7 +33,10 @@ import SketchOverlay from './SketchOverlay.svelte';
 
 	const BASE_ZOOM = 17;
 	let container: HTMLDivElement;
-	let nextId = $state(Date.now());
+
+	function generateId(): string {
+		return Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+	}
 
 	// Mode selection
 	let showBanner = $state(true);
@@ -60,9 +63,7 @@ import SketchOverlay from './SketchOverlay.svelte';
 
 	setContext('map', mapStore);
 
-	function generateId(): string {
-		return String(nextId++);
-	}
+
 
 	let previewFrom: LngLat | null = $derived(gateCenter ?? slalomStart);
 
