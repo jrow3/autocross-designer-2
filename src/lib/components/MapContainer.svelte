@@ -566,8 +566,20 @@ import SketchOverlay from './SketchOverlay.svelte';
 
 		if (points.length === 0) return;
 
-		console.log('[fitBounds] points count:', points.length, 'source:', data ? 'passed data' : 'store');
-		console.log('[fitBounds] sample points:', points.slice(0, 3));
+		const tagged: { type: string; pt: LngLat }[] = [];
+		for (const c of course.cones) tagged.push({ type: `cone:${c.id}`, pt: c.lngLat });
+		for (const wp of course.drivingLine) tagged.push({ type: 'waypoint', pt: wp.lngLat });
+		for (const m of course.measurements) { tagged.push({ type: 'measure-p1', pt: m.p1 }); tagged.push({ type: 'measure-p2', pt: m.p2 }); }
+		for (const n of course.notes) tagged.push({ type: `note:${n.id}`, pt: n.lngLat });
+		for (const o of course.obstacles) tagged.push({ type: `obstacle:${o.id}`, pt: o.lngLat });
+		for (const w of course.workers) tagged.push({ type: `worker:${w.id}`, pt: w.lngLat });
+		for (const s of course.courseOutline) { tagged.push({ type: 'outline-p1', pt: s.p1 }); tagged.push({ type: 'outline-p2', pt: s.p2 }); }
+
+		// Find outliers — points far from the median
+		const lngs = tagged.map(t => t.pt[0]).sort((a, b) => a - b);
+		const medLng = lngs[Math.floor(lngs.length / 2)];
+		const outliers = tagged.filter(t => Math.abs(t.pt[0] - medLng) > 1);
+		if (outliers.length > 0) console.warn('[fitBounds] OUTLIER elements far from cluster:', outliers);
 
 		let minLng = Infinity, maxLng = -Infinity, minLat = Infinity, maxLat = -Infinity;
 		for (const [lng, lat] of points) {
