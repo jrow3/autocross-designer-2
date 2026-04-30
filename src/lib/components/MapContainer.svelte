@@ -547,19 +547,20 @@ import SketchOverlay from './SketchOverlay.svelte';
 		});
 	}
 
-	export function fitBoundsToCourse() {
+	export function fitBoundsToCourse(data?: import('$lib/types/course').CourseData) {
 		const map = mapStore.map;
 		if (!map || !('fitBounds' in map)) return;
 
+		const course = data ?? courseStore.course;
 		const points: LngLat[] = [];
-		for (const c of courseStore.course.cones) points.push(c.lngLat);
-		for (const wp of courseStore.course.drivingLine) points.push(wp.lngLat);
-		for (const m of courseStore.course.measurements) { points.push(m.p1); points.push(m.p2); }
-		for (const n of courseStore.course.notes) points.push(n.lngLat);
-		for (const o of courseStore.course.obstacles) points.push(o.lngLat);
-		for (const w of courseStore.course.workers) points.push(w.lngLat);
-		for (const s of courseStore.course.courseOutline) { points.push(s.p1); points.push(s.p2); }
-		for (const sk of courseStore.course.sketches) {
+		for (const c of course.cones) points.push(c.lngLat);
+		for (const wp of course.drivingLine) points.push(wp.lngLat);
+		for (const m of course.measurements) { points.push(m.p1); points.push(m.p2); }
+		for (const n of course.notes) points.push(n.lngLat);
+		for (const o of course.obstacles) points.push(o.lngLat);
+		for (const w of course.workers) points.push(w.lngLat);
+		for (const s of course.courseOutline) { points.push(s.p1); points.push(s.p2); }
+		for (const sk of (course.sketches ?? [])) {
 			for (const p of sk.points) points.push(p);
 		}
 

@@ -44,7 +44,7 @@
 			<ToolStatus />
 		</div>
 	</main>
-	<Sidebar onfitcourse={() => mapContainer?.fitBoundsToCourse()} />
+	<Sidebar onfitcourse={(data) => mapContainer?.fitBoundsToCourse(data)} />
 </div>
 
 {#if showSaveDialog}

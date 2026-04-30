@@ -9,8 +9,9 @@
 	import { deserialize } from '$lib/engine/courseSerializer';
 	import { isSupabaseConfigured } from '$lib/services/supabase';
 	import type { LayerKey } from '$lib/stores/layerStore.svelte';
+	import type { CourseData } from '$lib/types/course';
 
-	let { onfitcourse }: { onfitcourse?: () => void } = $props();
+	let { onfitcourse }: { onfitcourse?: (data: CourseData) => void } = $props();
 
 	let collapsed = $state(false);
 	let myCourses = $state<SavedCourse[]>([]);
@@ -57,8 +58,9 @@
 	async function openCourse(id: string) {
 		const saved = await loadCourse(id);
 		if (saved) {
-			courseStore.load(deserialize(saved.data));
-			setTimeout(() => onfitcourse?.(), 100);
+			const data = deserialize(saved.data);
+			courseStore.load(data);
+			onfitcourse?.(data);
 		}
 	}
 
