@@ -58,7 +58,13 @@
 			placeholder="Venue name..."
 			onkeydown={(e) => e.key === 'Enter' && saveCurrentVenue()}
 		/>
-		<button class="venue-save-btn" onclick={saveCurrentVenue} disabled={!newName.trim()}>Save</button>
+		<button class="venue-save-btn" onclick={saveCurrentVenue} disabled={!newName.trim()} title="Save venue">
+			<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+				<path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+				<polyline points="17 21 17 13 7 13 7 21"/>
+				<polyline points="7 3 7 8 15 8"/>
+			</svg>
+		</button>
 	</div>
 	{#if Object.keys(venues).length === 0}
 		<div class="empty-text">No saved venues</div>
@@ -92,13 +98,14 @@
 
 	.venue-save input {
 		flex: 1;
-		padding: 4px 6px;
+		padding: 3px 6px;
 		background: #0f172a;
 		border: 1px solid #334155;
 		border-radius: 3px;
 		color: #e2e8f0;
 		font-size: 12px;
 		outline: none;
+		height: 24px;
 	}
 
 	.venue-save input:focus {
@@ -106,13 +113,18 @@
 	}
 
 	.venue-save-btn {
-		padding: 4px 8px;
+		padding: 3px 6px;
 		background: #1e293b;
 		border: 1px solid #334155;
 		border-radius: 3px;
 		color: #cbd5e1;
-		font-size: 12px;
 		cursor: pointer;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		width: 24px;
+		height: 24px;
+		flex-shrink: 0;
 	}
 
 	.venue-save-btn:disabled {
