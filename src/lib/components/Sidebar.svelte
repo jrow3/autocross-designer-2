@@ -5,7 +5,7 @@
 	import { mapStore } from '$lib/stores/mapStore.svelte';
 	import VenueList from './VenueList.svelte';
 	import { haversineFeet } from '$lib/engine/distance';
-	import { listMyCourses, loadCourse, type SavedCourse } from '$lib/services/courseService';
+	import { listMyCourses, loadCourse, deleteCourse, type SavedCourse } from '$lib/services/courseService';
 	import { deserialize } from '$lib/engine/courseSerializer';
 	import { isSupabaseConfigured } from '$lib/services/supabase';
 	import type { LayerKey } from '$lib/stores/layerStore.svelte';
@@ -59,6 +59,14 @@
 		if (saved) {
 			courseStore.load(deserialize(saved.data));
 			onfitcourse?.();
+		}
+	}
+
+	async function handleDeleteCourse(id: string, title: string) {
+		if (!confirm(`Delete "${title}"?`)) return;
+		const ok = await deleteCourse(id);
+		if (ok) {
+			myCourses = myCourses.filter((c) => c.id !== id);
 		}
 	}
 </script>
@@ -227,9 +235,12 @@
 						{:else}
 							<div class="item-list">
 								{#each myCourses as c}
-									<button class="list-item" onclick={() => openCourse(c.id)}>
-										<span class="item-text">{c.title}</span>
-									</button>
+									<div class="course-item">
+										<button class="list-item" onclick={() => openCourse(c.id)}>
+											<span class="item-text">{c.title}</span>
+										</button>
+										<button class="course-delete" onclick={() => handleDeleteCourse(c.id, c.title)} title="Delete">&times;</button>
+									</div>
 								{/each}
 							</div>
 						{/if}
@@ -456,5 +467,23 @@
 		overflow: hidden;
 		text-overflow: ellipsis;
 		white-space: nowrap;
+	}
+
+	.course-item {
+		display: flex;
+		gap: 4px;
+	}
+
+	.course-delete {
+		padding: 4px 8px;
+		background: none;
+		border: none;
+		color: #64748b;
+		cursor: pointer;
+		font-size: 16px;
+	}
+
+	.course-delete:hover {
+		color: #ef4444;
 	}
 </style>
