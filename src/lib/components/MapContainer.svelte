@@ -33,7 +33,7 @@ import SketchOverlay from './SketchOverlay.svelte';
 
 	const BASE_ZOOM = 17;
 	let container: HTMLDivElement;
-	let nextId = $state(1);
+	let nextId = $state(Date.now());
 
 	// Mode selection
 	let showBanner = $state(true);
