@@ -58,7 +58,7 @@
 		const saved = await loadCourse(id);
 		if (saved) {
 			courseStore.load(deserialize(saved.data));
-			onfitcourse?.();
+			setTimeout(() => onfitcourse?.(), 100);
 		}
 	}
 
