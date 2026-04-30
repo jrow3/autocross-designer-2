@@ -83,6 +83,7 @@
 				{/if}
 				<ToolButton tool="drivingline" label="Driving Line" title="Draw driving line" />
 				<ToolButton tool="courseoutline" label="Outline" title="Draw course outline" />
+				<ToolButton tool="sketch" label="Sketch" title="Freehand sketch line" />
 			</div>
 		{/if}
 	</div>

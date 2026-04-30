@@ -21,6 +21,7 @@
 	import MeasurementOverlay from './MeasurementOverlay.svelte';
 	import OutlineOverlay from './OutlineOverlay.svelte';
 	import GridOverlay from './GridOverlay.svelte';
+import SketchOverlay from './SketchOverlay.svelte';
 	import ModeBanner from './ModeBanner.svelte';
 	import ScaleDialog from './ScaleDialog.svelte';
 	import { layerStore } from '$lib/stores/layerStore.svelte';
@@ -55,6 +56,7 @@
 	let measurementOverlay = $state<MeasurementOverlay>();
 	let outlineOverlay = $state<OutlineOverlay>();
 	let gridOverlay = $state<GridOverlay>();
+	let sketchOverlay = $state<SketchOverlay>();
 
 	setContext('map', mapStore);
 
@@ -182,6 +184,9 @@
 
 			case 'scale':
 				handleScaleClick(lngLat);
+				break;
+
+			case 'sketch':
 				break;
 
 			case 'select':
@@ -480,6 +485,11 @@
 		map.on('load', () => {
 			mapStore.setMap(map);
 			initBoxSelection();
+			document.addEventListener('keydown', (e) => {
+				if (e.key === 'Delete' || e.key === 'Backspace') {
+					sketchOverlay?.deleteSelected();
+				}
+			});
 		});
 
 		map.on('zoom', () => {
@@ -489,6 +499,10 @@
 
 		map.on('click', handleClick);
 		map.on('mousemove', handleMouseMove);
+		map.on('mousedown', (e: mapboxgl.MapMouseEvent) => sketchOverlay?.handleMouseDown(e));
+		map.on('mousemove', (e: mapboxgl.MapMouseEvent) => sketchOverlay?.handleMouseMove(e));
+		map.on('mouseup', () => sketchOverlay?.handleMouseUp());
+		map.on('click', (e: mapboxgl.MapMouseEvent) => sketchOverlay?.handleClick(e));
 
 		map.on('moveend', () => {
 			const center = map.getCenter();
@@ -512,6 +526,10 @@
 
 		imageMap.on('click', handleClick);
 		imageMap.on('mousemove', handleMouseMove);
+		imageMap.on('mousedown', (e: any) => sketchOverlay?.handleMouseDown(e));
+		imageMap.on('mousemove', (e: any) => sketchOverlay?.handleMouseMove(e));
+		imageMap.on('mouseup', () => sketchOverlay?.handleMouseUp());
+		imageMap.on('click', (e: any) => sketchOverlay?.handleClick(e));
 
 		imageMap.on('move', () => {
 			const center = imageMap.getCenter();
@@ -564,6 +582,9 @@
 			<OutlineOverlay bind:this={outlineOverlay} />
 		{/if}
 		<GridOverlay bind:this={gridOverlay} />
+		{#if layerStore.isVisible('sketches')}
+			<SketchOverlay bind:this={sketchOverlay} />
+		{/if}
 	{/if}
 </div>
 
