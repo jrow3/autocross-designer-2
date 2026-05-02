@@ -327,6 +327,41 @@ import SketchOverlay from './SketchOverlay.svelte';
 	// Box selection for select tool
 	let isBoxSelecting = false;
 
+	// Right-click pan in sketch mode
+	let isRightClickPanning = false;
+	let rightClickPanStart: { x: number; y: number } | null = null;
+
+	function initSketchPan() {
+		const canvasContainer = container.querySelector('.mapboxgl-canvas-container') as HTMLElement | null;
+		if (!canvasContainer) return;
+
+		canvasContainer.addEventListener('contextmenu', (e) => {
+			if (toolStore.activeTool === 'sketch') e.preventDefault();
+		});
+
+		canvasContainer.addEventListener('mousedown', (e) => {
+			if (toolStore.activeTool !== 'sketch' || e.button !== 2) return;
+			isRightClickPanning = true;
+			rightClickPanStart = { x: e.clientX, y: e.clientY };
+			canvasContainer.style.cursor = 'grabbing';
+		});
+
+		canvasContainer.addEventListener('mousemove', (e) => {
+			if (!isRightClickPanning || !rightClickPanStart) return;
+			const dx = e.clientX - rightClickPanStart.x;
+			const dy = e.clientY - rightClickPanStart.y;
+			(mapStore.map as mapboxgl.Map).panBy([-dx, -dy], { duration: 0 });
+			rightClickPanStart = { x: e.clientX, y: e.clientY };
+		});
+
+		canvasContainer.addEventListener('mouseup', (e) => {
+			if (e.button !== 2) return;
+			isRightClickPanning = false;
+			rightClickPanStart = null;
+			canvasContainer.style.cursor = '';
+		});
+	}
+
 	function initBoxSelection() {
 		container.addEventListener('mousedown', (e) => {
 			if (toolStore.activeTool !== 'select' || e.button !== 0) return;
@@ -489,6 +524,7 @@ import SketchOverlay from './SketchOverlay.svelte';
 		map.on('load', () => {
 			mapStore.setMap(map);
 			initBoxSelection();
+			initSketchPan();
 			if (sessionStorage.getItem('fitCourseOnLoad')) {
 				sessionStorage.removeItem('fitCourseOnLoad');
 				setTimeout(() => fitBoundsToCourse(), 100);
