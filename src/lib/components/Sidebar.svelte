@@ -11,6 +11,7 @@
 	import type { LayerKey } from '$lib/stores/layerStore.svelte';
 	import { toolStore } from '$lib/stores/toolStore.svelte';
 	import type { CourseData } from '$lib/types/course';
+	import { numberCones } from '$lib/engine/coneNumbering';
 
 	let { onfitcourse, oncourseopened }: {
 		onfitcourse?: (data: CourseData) => void;
@@ -53,6 +54,18 @@
 
 	function flyToWorker(lngLat: [number, number]) {
 		mapStore.map?.flyTo({ center: lngLat, speed: 2 });
+	}
+
+	function runConeNumbering() {
+		const { cones, workerZones, drivingLine } = courseStore.course;
+		if (workerZones.length === 0) {
+			toolStore.setStatus('Draw worker zones first');
+			return;
+		}
+		const numbers = numberCones(cones, workerZones, drivingLine);
+		courseStore.setConeNumbers(numbers);
+		layerStore.setVisible('coneNumbers', true);
+		toolStore.setStatus(`Numbered ${Object.keys(numbers).length} cones`);
 	}
 
 	function truncate(text: string, max: number): string {
@@ -249,6 +262,20 @@
 						{/each}
 					</div>
 				{/if}
+			</section>
+
+			<section>
+				<h3>Cone Numbering</h3>
+				<div class="setting">
+					<button class="action-btn" onclick={runConeNumbering}>
+						Number Cones
+					</button>
+					{#if Object.keys(courseStore.course.coneNumbers).length > 0}
+						<button class="action-btn secondary" onclick={() => courseStore.clearConeNumbers()}>
+							Clear Numbers
+						</button>
+					{/if}
+				</div>
 			</section>
 
 				{#if isSupabaseConfigured()}
@@ -511,5 +538,36 @@
 
 	.course-delete:hover {
 		color: #ef4444;
+	}
+
+	.setting {
+		display: flex;
+		flex-direction: column;
+		gap: 6px;
+	}
+
+	.action-btn {
+		padding: 6px 10px;
+		background: #1e3a5f;
+		border: 1px solid #3b82f6;
+		border-radius: 4px;
+		color: #e2e8f0;
+		font-size: 12px;
+		cursor: pointer;
+		text-align: center;
+	}
+
+	.action-btn:hover {
+		background: #2d4f7f;
+	}
+
+	.action-btn.secondary {
+		background: #1c1c2e;
+		border-color: #475569;
+		color: #94a3b8;
+	}
+
+	.action-btn.secondary:hover {
+		background: #2a2a3f;
 	}
 </style>

@@ -26,6 +26,7 @@ import SketchOverlay from './SketchOverlay.svelte';
 	import StagingOverlay from './StagingOverlay.svelte';
 	import WorkerZoneOverlay from './WorkerZoneOverlay.svelte';
 	import HazardOverlay from './HazardOverlay.svelte';
+	import ConeNumberOverlay from './ConeNumberOverlay.svelte';
 	import ModeBanner from './ModeBanner.svelte';
 	import ScaleDialog from './ScaleDialog.svelte';
 	import { layerStore } from '$lib/stores/layerStore.svelte';
@@ -749,6 +750,9 @@ import SketchOverlay from './SketchOverlay.svelte';
 		{/if}
 		{#if layerStore.isVisible('safetyZones')}
 			<HazardOverlay />
+		{/if}
+		{#if layerStore.isVisible('coneNumbers')}
+			<ConeNumberOverlay />
 		{/if}
 		<PolygonOverlay
 			bind:this={stagingPolygonOverlay}
