@@ -223,8 +223,19 @@ import SketchOverlay from './SketchOverlay.svelte';
 			}
 
 			case 'hazard-line': {
-				hazardLinePoints = [...hazardLinePoints, lngLat];
-				toolStore.setStatus(`Hazard line: ${hazardLinePoints.length} points. Double-click to finish.`);
+				if (hazardLinePoints.length === 0) {
+					hazardLinePoints = [lngLat];
+					toolStore.setStatus('Click second point to finish hazard line.');
+				} else {
+					courseStore.addHazardMarker({
+						id: generateId(),
+						type: 'line',
+						coordinates: [hazardLinePoints[0], lngLat],
+						bufferFeet: toolStore.hazardBufferFeet
+					});
+					hazardLinePoints = [];
+					toolStore.clearStatus();
+				}
 				return;
 			}
 
@@ -358,16 +369,6 @@ import SketchOverlay from './SketchOverlay.svelte';
 		}
 		if (toolStore.activeTool === 'worker-zone') {
 			workerZonePolygonOverlay?.handleDoubleClick(e);
-		}
-		if (toolStore.activeTool === 'hazard-line' && hazardLinePoints.length >= 2) {
-			courseStore.addHazardMarker({
-				id: generateId(),
-				type: 'line',
-				coordinates: [...hazardLinePoints],
-				bufferFeet: toolStore.hazardBufferFeet
-			});
-			hazardLinePoints = [];
-			toolStore.clearStatus();
 		}
 	}
 
