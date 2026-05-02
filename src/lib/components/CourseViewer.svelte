@@ -119,7 +119,7 @@
 	{#if mapStore.map}
 		{#if layerStore.isVisible('cones')}
 			{#each courseStore.course.cones as cone (cone.id)}
-				<ConeMarker {cone} />
+				<ConeMarker {cone} readonly={true} />
 			{/each}
 		{/if}
 		{#if layerStore.isVisible('obstacles')}

@@ -68,7 +68,7 @@
 	}
 
 	$effect(() => {
-		const _markers = courseStore.course.hazardMarkers.length;
+		const _ = courseStore.course.hazardMarkers;
 		updateSources();
 	});
 

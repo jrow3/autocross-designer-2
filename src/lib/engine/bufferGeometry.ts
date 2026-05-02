@@ -60,7 +60,6 @@ export function lineBuffer(points: LngLat[], bufferFeet: number, segments = 16):
 	const lastSeg = points[points.length - 2];
 	const endDx = endPt[0] - lastSeg[0];
 	const endDy = endPt[1] - lastSeg[1];
-	const endLen = Math.sqrt(endDx * endDx + endDy * endDy);
 	const endAngle = Math.atan2(endDy / endDlat, endDx / endDlng);
 
 	const endCap: LngLat[] = [];
@@ -76,7 +75,6 @@ export function lineBuffer(points: LngLat[], bufferFeet: number, segments = 16):
 	const nextSeg = points[1];
 	const startDx = startPt[0] - nextSeg[0];
 	const startDy = startPt[1] - nextSeg[1];
-	const startLen = Math.sqrt(startDx * startDx + startDy * startDy);
 	const startAngle = Math.atan2(startDy / startDlat, startDx / startDlng);
 
 	const startCap: LngLat[] = [];

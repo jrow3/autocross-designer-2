@@ -776,7 +776,7 @@ import SketchOverlay from './SketchOverlay.svelte';
 			strokeColor="#ff6b6b"
 			strokeDasharray={[6, 3]}
 			onComplete={(vertices) => {
-				const nextStation = courseStore.course.workerZones.length + 1;
+				const nextStation = Math.max(0, ...courseStore.course.workerZones.map(z => z.stationNumber)) + 1;
 				courseStore.addWorkerZone({
 					id: generateId(),
 					vertices,

@@ -45,7 +45,7 @@
 	}
 
 	$effect(() => {
-		const _len = courseStore.course.workerZones.length;
+		const _ = courseStore.course.workerZones;
 		updateSource();
 	});
 

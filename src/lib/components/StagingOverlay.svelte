@@ -33,7 +33,7 @@
 	}
 
 	$effect(() => {
-		const _len = courseStore.course.stagingAreas.length;
+		const _ = courseStore.course.stagingAreas;
 		updateSource();
 	});
 
