@@ -22,6 +22,8 @@
 	import OutlineOverlay from './OutlineOverlay.svelte';
 	import GridOverlay from './GridOverlay.svelte';
 import SketchOverlay from './SketchOverlay.svelte';
+	import PolygonOverlay from './PolygonOverlay.svelte';
+	import StagingOverlay from './StagingOverlay.svelte';
 	import ModeBanner from './ModeBanner.svelte';
 	import ScaleDialog from './ScaleDialog.svelte';
 	import { layerStore } from '$lib/stores/layerStore.svelte';
@@ -60,6 +62,7 @@ import SketchOverlay from './SketchOverlay.svelte';
 	let outlineOverlay = $state<OutlineOverlay>();
 	let gridOverlay = $state<GridOverlay>();
 	let sketchOverlay = $state<SketchOverlay>();
+	let stagingPolygonOverlay = $state<PolygonOverlay>();
 
 	setContext('map', mapStore);
 
@@ -194,6 +197,10 @@ import SketchOverlay from './SketchOverlay.svelte';
 			case 'sketch':
 				break;
 
+			case 'staging-area':
+				stagingPolygonOverlay?.handleClick(e);
+				return;
+
 			case 'select':
 				selectionStore.clear();
 				break;
@@ -318,8 +325,16 @@ import SketchOverlay from './SketchOverlay.svelte';
 	}
 
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	function handleDblClick(e: any) {
+		if (toolStore.activeTool === 'staging-area') {
+			stagingPolygonOverlay?.handleDoubleClick(e);
+		}
+	}
+
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	function handleMouseMove(e: any) {
 		mousePos = [e.lngLat.lng, e.lngLat.lat];
+		stagingPolygonOverlay?.handleMouseMove(e);
 	}
 
 	function updateMarkerScale() {
@@ -547,6 +562,7 @@ import SketchOverlay from './SketchOverlay.svelte';
 
 		map.on('click', handleClick);
 		map.on('mousemove', handleMouseMove);
+		map.on('dblclick', handleDblClick);
 		map.on('mousedown', (e: mapboxgl.MapMouseEvent) => sketchOverlay?.handleMouseDown(e));
 		map.on('mousemove', (e: mapboxgl.MapMouseEvent) => sketchOverlay?.handleMouseMove(e));
 		map.on('mouseup', () => sketchOverlay?.handleMouseUp());
@@ -682,6 +698,23 @@ import SketchOverlay from './SketchOverlay.svelte';
 		{#if layerStore.isVisible('sketches')}
 			<SketchOverlay bind:this={sketchOverlay} />
 		{/if}
+		{#if layerStore.isVisible('stagingAreas')}
+			<StagingOverlay />
+		{/if}
+		<PolygonOverlay
+			bind:this={stagingPolygonOverlay}
+			activeTools={['staging-area']}
+			fillColor="#6495ED"
+			fillOpacity={0.2}
+			strokeColor="#6495ED"
+			onComplete={(vertices) => {
+				courseStore.addStagingArea({
+					id: generateId(),
+					vertices,
+					label: 'STAGING'
+				});
+			}}
+		/>
 	{/if}
 </div>
 

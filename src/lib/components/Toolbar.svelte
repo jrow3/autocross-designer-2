@@ -111,6 +111,7 @@
 				{/if}
 				<ToolButton tool="trailer" label="Trailer" title="Place trailer" />
 				<ToolButton tool="staging-grid" label="Staging Grid" title="Place staging grid" />
+				<ToolButton tool="staging-area" label="Staging Area" title="Draw staging area polygon" />
 			</div>
 		{/if}
 	</div>
