@@ -15,7 +15,11 @@ export type Tool =
 	| 'courseoutline'
 	| 'note'
 	| 'scale'
-	| 'sketch';
+	| 'sketch'
+	| 'staging-area'
+	| 'worker-zone'
+	| 'hazard-point'
+	| 'hazard-line';
 
 const CONE_TOOLS: Tool[] = ['regular', 'pointer', 'start-cone', 'finish-cone', 'gate', 'slalom'];
 
@@ -28,6 +32,7 @@ let gateDirectionalCones = $state(false);
 let slalomSpacingFeet = $state(75);
 let selectedObstacleType = $state<ObstacleTypeId>('pole');
 let statusMessage = $state('');
+let hazardBufferFeet = $state(25);
 
 export const toolStore = {
 	get activeTool() {
@@ -52,6 +57,10 @@ export const toolStore = {
 
 	get selectedObstacleType() {
 		return selectedObstacleType;
+	},
+
+	get hazardBufferFeet() {
+		return hazardBufferFeet;
 	},
 
 	get isConeTool() {
@@ -85,6 +94,10 @@ export const toolStore = {
 
 	setObstacleType(type: ObstacleTypeId): void {
 		selectedObstacleType = type;
+	},
+
+	setHazardBufferFeet(feet: number): void {
+		hazardBufferFeet = feet;
 	},
 
 	setStatus(msg: string): void {

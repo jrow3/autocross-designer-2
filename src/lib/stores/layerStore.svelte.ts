@@ -28,7 +28,11 @@ const layers = $state<Layer[]>([
 	{ key: 'notes', label: 'Notes', visible: true },
 	{ key: 'courseOutline', label: 'Course Outline', visible: true },
 	{ key: 'sketches', label: 'Sketches', visible: true },
-	{ key: 'grid', label: 'Grid', visible: true }
+	{ key: 'grid', label: 'Grid', visible: true },
+	{ key: 'stagingAreas' as LayerKey, label: 'Staging Areas', visible: true },
+	{ key: 'workerZones' as LayerKey, label: 'Worker Zones', visible: true },
+	{ key: 'safetyZones' as LayerKey, label: 'Safety Zones', visible: true },
+	{ key: 'coneNumbers' as LayerKey, label: 'Cone Numbers', visible: false }
 ]);
 
 export const layerStore = {

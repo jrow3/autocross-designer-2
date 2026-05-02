@@ -1,4 +1,4 @@
-import { type CourseData, type ConeData, type ObstacleData, type WorkerData, type NoteData, type WaypointData, type MeasurementData, type OutlineSegmentData, type SketchData, type LngLat } from '$lib/types/course';
+import { type CourseData, type ConeData, type ObstacleData, type WorkerData, type NoteData, type WaypointData, type MeasurementData, type OutlineSegmentData, type SketchData, type LngLat, type StagingAreaData, type WorkerZoneData, type HazardMarkerData, type ConeNumberMap } from '$lib/types/course';
 import { emptyCourse } from '$lib/engine/courseSerializer';
 
 const MAX_SNAPSHOTS = 50;
@@ -21,6 +21,10 @@ function restore(json: string): void {
 	course.workers = data.workers;
 	course.courseOutline = data.courseOutline;
 	course.sketches = data.sketches;
+	course.stagingAreas = data.stagingAreas;
+	course.workerZones = data.workerZones;
+	course.hazardMarkers = data.hazardMarkers;
+	course.coneNumbers = data.coneNumbers;
 }
 
 export const courseStore = {
@@ -196,6 +200,66 @@ export const courseStore = {
 	removeSketch(id: string): void {
 		const idx = course.sketches.findIndex((s) => s.id === id);
 		if (idx !== -1) course.sketches.splice(idx, 1);
+	},
+
+	addStagingArea(area: StagingAreaData): void {
+		this.pushUndo();
+		course.stagingAreas.push(area);
+	},
+
+	removeStagingArea(id: string): void {
+		this.pushUndo();
+		course.stagingAreas = course.stagingAreas.filter((a) => a.id !== id);
+	},
+
+	updateStagingAreaVertices(id: string, vertices: LngLat[]): void {
+		this.pushUndo();
+		course.stagingAreas = course.stagingAreas.map((a) => a.id === id ? { ...a, vertices } : a);
+	},
+
+	addWorkerZone(zone: WorkerZoneData): void {
+		this.pushUndo();
+		course.workerZones.push(zone);
+	},
+
+	removeWorkerZone(id: string): void {
+		this.pushUndo();
+		course.workerZones = course.workerZones.filter((z) => z.id !== id);
+	},
+
+	updateWorkerZoneVertices(id: string, vertices: LngLat[]): void {
+		this.pushUndo();
+		course.workerZones = course.workerZones.map((z) => z.id === id ? { ...z, vertices } : z);
+	},
+
+	updateWorkerZoneStation(id: string, stationNumber: number): void {
+		this.pushUndo();
+		course.workerZones = course.workerZones.map((z) => z.id === id ? { ...z, stationNumber } : z);
+	},
+
+	addHazardMarker(marker: HazardMarkerData): void {
+		this.pushUndo();
+		course.hazardMarkers.push(marker);
+	},
+
+	removeHazardMarker(id: string): void {
+		this.pushUndo();
+		course.hazardMarkers = course.hazardMarkers.filter((m) => m.id !== id);
+	},
+
+	updateHazardBuffer(id: string, bufferFeet: number): void {
+		this.pushUndo();
+		course.hazardMarkers = course.hazardMarkers.map((m) => m.id === id ? { ...m, bufferFeet } : m);
+	},
+
+	setConeNumbers(numbers: ConeNumberMap): void {
+		this.pushUndo();
+		course.coneNumbers = { ...numbers };
+	},
+
+	clearConeNumbers(): void {
+		this.pushUndo();
+		course.coneNumbers = {};
 	},
 
 	setMapView(center: LngLat, zoom: number): void {

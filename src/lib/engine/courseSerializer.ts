@@ -11,7 +11,10 @@ const ARRAY_FIELDS = [
 	'obstacles',
 	'workers',
 	'courseOutline',
-	'sketches'
+	'sketches',
+	'stagingAreas',
+	'workerZones',
+	'hazardMarkers'
 ] as const;
 
 export function emptyCourse(): CourseData {
@@ -25,6 +28,10 @@ export function emptyCourse(): CourseData {
 		workers: [],
 		courseOutline: [],
 		sketches: [],
+		stagingAreas: [],
+		workerZones: [],
+		hazardMarkers: [],
+		coneNumbers: {},
 		mapCenter: [-96.7694672, 40.8446702],
 		mapZoom: 18
 	};
@@ -56,6 +63,10 @@ export function validate(data: Record<string, unknown>): Record<string, unknown>
 			console.warn('validate: truncating field', f, 'from', arr.length, 'to', MAX_ITEMS);
 			data[f] = arr.slice(0, MAX_ITEMS);
 		}
+	}
+
+	if (data.coneNumbers != null && (typeof data.coneNumbers !== 'object' || Array.isArray(data.coneNumbers))) {
+		data.coneNumbers = {};
 	}
 
 	return data;
