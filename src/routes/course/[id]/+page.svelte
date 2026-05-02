@@ -1,61 +1,56 @@
 <script lang="ts">
-	import { page } from '$app/state';
 	import { onMount } from 'svelte';
+	import { page } from '$app/state';
 	import { loadCourse } from '$lib/services/courseService';
-	import { courseStore } from '$lib/stores/courseStore.svelte';
-	import { layerStore } from '$lib/stores/layerStore.svelte';
 	import { deserialize } from '$lib/engine/courseSerializer';
-	import { goto } from '$app/navigation';
+	import { courseStore } from '$lib/stores/courseStore.svelte';
+	import CourseViewer from '$lib/components/CourseViewer.svelte';
 
+	let loading = $state(true);
 	let error = $state('');
+	let title = $state('');
 
 	onMount(async () => {
-		const id = page.params.id as string;
-		if (!id) { error = 'No course ID provided.'; return; }
-		const result = await loadCourse(id);
-		if (!result) { error = 'Course not found or failed to load.'; return; }
-
-		const data = deserialize(result.data);
-		courseStore.load(data);
-		layerStore.setVisible('sketches', false);
-		sessionStorage.setItem('fitCourseOnLoad', 'true');
-		goto('/');
+		try {
+			const id = page.params.id as string;
+			const result = await loadCourse(id);
+			if (!result) {
+				error = 'Course not found';
+				loading = false;
+				return;
+			}
+			title = result.title;
+			const data = deserialize(result.data);
+			courseStore.load(data);
+			loading = false;
+		} catch (e) {
+			error = 'Failed to load course';
+			loading = false;
+		}
 	});
 </script>
 
-{#if error}
-	<div class="viewer">
-		<div class="status error">{error}</div>
-		<a href="/" class="back-link">Back to editor</a>
-	</div>
+{#if loading}
+	<div class="loading">Loading course...</div>
+{:else if error}
+	<div class="error">{error}</div>
 {:else}
-	<div class="viewer">
-		<div class="status">Loading course...</div>
-	</div>
+	<CourseViewer {title} />
 {/if}
 
 <style>
-	.viewer {
-		max-width: 600px;
-		margin: 80px auto;
-		padding: 24px;
-		text-align: center;
-	}
-
-	.status {
+	.loading,
+	.error {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		height: 100vh;
 		font-size: 18px;
-		color: #94a3b8;
-		padding: 40px 0;
+		color: #ccc;
+		background: #1a1a2e;
 	}
 
 	.error {
-		color: #ef4444;
-	}
-
-	.back-link {
-		display: block;
-		margin-top: 16px;
-		color: #60a5fa;
-		text-decoration: none;
+		color: #e94560;
 	}
 </style>
