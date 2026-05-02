@@ -122,10 +122,14 @@ import SketchOverlay from './SketchOverlay.svelte';
 			case 'regular':
 			case 'start-cone':
 			case 'finish-cone':
-			case 'trailer':
 			case 'staging-grid':
 				courseStore.pushUndo();
 				courseStore.addCone({ id: generateId(), type: tool, lngLat, lockedTargetId: null });
+				break;
+
+			case 'trailer':
+				courseStore.pushUndo();
+				courseStore.addCone({ id: generateId(), type: 'trailer', lngLat, width: 80, height: 40, rotation: 0, lockedTargetId: null });
 				break;
 
 			case 'pointer': {
