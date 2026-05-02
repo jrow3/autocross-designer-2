@@ -32,7 +32,7 @@
 	let vertices = $state<LngLat[]>([]);
 	let mousePos = $state<LngLat | null>(null);
 
-	const CLOSE_THRESHOLD = 0.00005;
+	const CLOSE_THRESHOLD = 0.0002;
 
 	function isNearFirst(point: LngLat): boolean {
 		if (vertices.length < 3) return false;
