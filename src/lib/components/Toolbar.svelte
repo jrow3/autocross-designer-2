@@ -124,6 +124,7 @@
 		{#if !collapsed['annotations']}
 			<div class="section-body">
 				<ToolButton tool="worker" label="Worker Station" title="Place worker station" />
+				<ToolButton tool="worker-zone" label="Worker Zone" title="Draw worker station zone" />
 				<ToolButton tool="note" label="Note" title="Add text note" />
 				<ToolButton tool="measure" label="Measure" title="Measure distance" />
 			</div>

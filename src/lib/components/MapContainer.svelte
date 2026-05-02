@@ -24,6 +24,7 @@
 import SketchOverlay from './SketchOverlay.svelte';
 	import PolygonOverlay from './PolygonOverlay.svelte';
 	import StagingOverlay from './StagingOverlay.svelte';
+	import WorkerZoneOverlay from './WorkerZoneOverlay.svelte';
 	import ModeBanner from './ModeBanner.svelte';
 	import ScaleDialog from './ScaleDialog.svelte';
 	import { layerStore } from '$lib/stores/layerStore.svelte';
@@ -63,6 +64,7 @@ import SketchOverlay from './SketchOverlay.svelte';
 	let gridOverlay = $state<GridOverlay>();
 	let sketchOverlay = $state<SketchOverlay>();
 	let stagingPolygonOverlay = $state<PolygonOverlay>();
+	let workerZonePolygonOverlay = $state<PolygonOverlay>();
 
 	setContext('map', mapStore);
 
@@ -201,6 +203,10 @@ import SketchOverlay from './SketchOverlay.svelte';
 				stagingPolygonOverlay?.handleClick(e);
 				return;
 
+			case 'worker-zone':
+				workerZonePolygonOverlay?.handleClick(e);
+				return;
+
 			case 'select':
 				selectionStore.clear();
 				break;
@@ -329,12 +335,16 @@ import SketchOverlay from './SketchOverlay.svelte';
 		if (toolStore.activeTool === 'staging-area') {
 			stagingPolygonOverlay?.handleDoubleClick(e);
 		}
+		if (toolStore.activeTool === 'worker-zone') {
+			workerZonePolygonOverlay?.handleDoubleClick(e);
+		}
 	}
 
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	function handleMouseMove(e: any) {
 		mousePos = [e.lngLat.lng, e.lngLat.lat];
 		stagingPolygonOverlay?.handleMouseMove(e);
+		workerZonePolygonOverlay?.handleMouseMove(e);
 	}
 
 	function updateMarkerScale() {
@@ -701,6 +711,9 @@ import SketchOverlay from './SketchOverlay.svelte';
 		{#if layerStore.isVisible('stagingAreas')}
 			<StagingOverlay />
 		{/if}
+		{#if layerStore.isVisible('workerZones')}
+			<WorkerZoneOverlay />
+		{/if}
 		<PolygonOverlay
 			bind:this={stagingPolygonOverlay}
 			activeTools={['staging-area']}
@@ -712,6 +725,22 @@ import SketchOverlay from './SketchOverlay.svelte';
 					id: generateId(),
 					vertices,
 					label: 'STAGING'
+				});
+			}}
+		/>
+		<PolygonOverlay
+			bind:this={workerZonePolygonOverlay}
+			activeTools={['worker-zone']}
+			fillColor="#ff6b6b"
+			fillOpacity={0.1}
+			strokeColor="#ff6b6b"
+			strokeDasharray={[6, 3]}
+			onComplete={(vertices) => {
+				const nextStation = courseStore.course.workerZones.length + 1;
+				courseStore.addWorkerZone({
+					id: generateId(),
+					vertices,
+					stationNumber: nextStation
 				});
 			}}
 		/>
