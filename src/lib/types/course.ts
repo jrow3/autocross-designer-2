@@ -56,6 +56,27 @@ export interface SketchData {
 	points: LngLat[];
 }
 
+export interface StagingAreaData {
+	id: string;
+	vertices: LngLat[];
+	label: string;
+}
+
+export interface WorkerZoneData {
+	id: string;
+	vertices: LngLat[];
+	stationNumber: number;
+}
+
+export interface HazardMarkerData {
+	id: string;
+	type: 'point' | 'line';
+	coordinates: LngLat[];
+	bufferFeet: number;
+}
+
+export type ConeNumberMap = Record<string, string>;
+
 export interface CourseData {
 	schemaVersion: number;
 	cones: ConeData[];
@@ -66,6 +87,10 @@ export interface CourseData {
 	workers: WorkerData[];
 	courseOutline: OutlineSegmentData[];
 	sketches: SketchData[];
+	stagingAreas: StagingAreaData[];
+	workerZones: WorkerZoneData[];
+	hazardMarkers: HazardMarkerData[];
+	coneNumbers: ConeNumberMap;
 	mapCenter: LngLat;
 	mapZoom: number;
 	imageMode?: boolean;

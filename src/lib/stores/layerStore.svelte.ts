@@ -7,7 +7,11 @@ export type LayerKey =
 	| 'notes'
 	| 'courseOutline'
 	| 'sketches'
-	| 'grid';
+	| 'grid'
+	| 'stagingAreas'
+	| 'workerZones'
+	| 'safetyZones'
+	| 'coneNumbers';
 
 export interface Layer {
 	key: LayerKey;
