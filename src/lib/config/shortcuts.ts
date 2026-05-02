@@ -16,7 +16,11 @@ export const TOOL_SHORTCUTS: Partial<Record<Tool, string>> = {
 	'staging-grid': 'G',
 	worker: 'W',
 	scale: 'S',
-	select: 'Esc'
+	select: 'Esc',
+	'staging-area': 'a',
+	'worker-zone': 'z',
+	'hazard-point': 'h',
+	'hazard-line': 'j'
 };
 
 export const KEY_TOOL_MAP: Record<string, Tool> = {
@@ -34,5 +38,9 @@ export const KEY_TOOL_MAP: Record<string, Tool> = {
 	t: 'trailer',
 	g: 'staging-grid',
 	w: 'worker',
-	s: 'scale'
+	s: 'scale',
+	a: 'staging-area',
+	z: 'worker-zone',
+	h: 'hazard-point',
+	j: 'hazard-line'
 };
