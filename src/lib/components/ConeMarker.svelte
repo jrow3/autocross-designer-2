@@ -7,7 +7,7 @@
 	import { selectionStore } from '$lib/stores/selectionStore.svelte';
 	import type { ConeData, LngLat } from '$lib/types/course';
 
-	let { cone }: { cone: ConeData } = $props();
+	let { cone, readonly = false }: { cone: ConeData; readonly?: boolean } = $props();
 
 	let marker: AnyMarker | null = null;
 	let innerEl: HTMLDivElement | null = null;
@@ -147,7 +147,7 @@
 
 		const { wrapper, inner } = createElement(cone.type);
 
-		marker = createMarker({ element: wrapper, draggable: true })
+		marker = createMarker({ element: wrapper, draggable: !readonly })
 			.setLngLat(cone.lngLat as [number, number])
 			.addTo(map);
 
@@ -201,13 +201,15 @@
 			applyTransform();
 		});
 
-		wrapper.addEventListener('contextmenu', (e) => {
-			e.preventDefault();
-			courseStore.pushUndo();
-			courseStore.removeCone(cone.id);
-		});
+		if (!readonly) {
+			wrapper.addEventListener('contextmenu', (e) => {
+				e.preventDefault();
+				courseStore.pushUndo();
+				courseStore.removeCone(cone.id);
+			});
+		}
 
-		if (isResizable) attachHandles(inner);
+		if (isResizable && !readonly) attachHandles(inner);
 		applyTransform();
 
 		return () => {

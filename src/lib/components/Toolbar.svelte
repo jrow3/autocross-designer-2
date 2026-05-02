@@ -111,6 +111,7 @@
 				{/if}
 				<ToolButton tool="trailer" label="Trailer" title="Place trailer" />
 				<ToolButton tool="staging-grid" label="Staging Grid" title="Place staging grid" />
+				<ToolButton tool="staging-area" label="Staging Area" title="Draw staging area polygon" />
 			</div>
 		{/if}
 	</div>
@@ -123,8 +124,22 @@
 		{#if !collapsed['annotations']}
 			<div class="section-body">
 				<ToolButton tool="worker" label="Worker Station" title="Place worker station" />
+				<ToolButton tool="worker-zone" label="Worker Zone" title="Draw worker station zone" />
 				<ToolButton tool="note" label="Note" title="Add text note" />
 				<ToolButton tool="measure" label="Measure" title="Measure distance" />
+			</div>
+		{/if}
+	</div>
+
+	<div class="toolbar-section">
+		<button class="section-header" onclick={() => toggle('safety')}>
+			<span class="chevron" class:open={!collapsed['safety']}>&#9656;</span>
+			<span>Safety</span>
+		</button>
+		{#if !collapsed['safety']}
+			<div class="section-body">
+				<ToolButton tool="hazard-point" label="Hazard Point" title="Mark a point hazard (pole, post)" />
+				<ToolButton tool="hazard-line" label="Hazard Line" title="Mark a line hazard (wall, barrier)" />
 			</div>
 		{/if}
 	</div>

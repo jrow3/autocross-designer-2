@@ -22,6 +22,11 @@
 	import OutlineOverlay from './OutlineOverlay.svelte';
 	import GridOverlay from './GridOverlay.svelte';
 import SketchOverlay from './SketchOverlay.svelte';
+	import PolygonOverlay from './PolygonOverlay.svelte';
+	import StagingOverlay from './StagingOverlay.svelte';
+	import WorkerZoneOverlay from './WorkerZoneOverlay.svelte';
+	import HazardOverlay from './HazardOverlay.svelte';
+	import ConeNumberOverlay from './ConeNumberOverlay.svelte';
 	import ModeBanner from './ModeBanner.svelte';
 	import ScaleDialog from './ScaleDialog.svelte';
 	import { layerStore } from '$lib/stores/layerStore.svelte';
@@ -50,6 +55,9 @@ import SketchOverlay from './SketchOverlay.svelte';
 	let mousePos: LngLat | null = $state(null);
 	let nextNoteNumber = $state(1);
 
+	// Hazard line tool state
+	let hazardLinePoints: LngLat[] = $state([]);
+
 	// Scale calibration state
 	let scalePoint1: LngLat | null = $state(null);
 	let scalePoint1Marker: ReturnType<typeof createMarker> | null = null;
@@ -60,6 +68,8 @@ import SketchOverlay from './SketchOverlay.svelte';
 	let outlineOverlay = $state<OutlineOverlay>();
 	let gridOverlay = $state<GridOverlay>();
 	let sketchOverlay = $state<SketchOverlay>();
+	let stagingPolygonOverlay = $state<PolygonOverlay>();
+	let workerZonePolygonOverlay = $state<PolygonOverlay>();
 
 	setContext('map', mapStore);
 
@@ -122,10 +132,14 @@ import SketchOverlay from './SketchOverlay.svelte';
 			case 'regular':
 			case 'start-cone':
 			case 'finish-cone':
-			case 'trailer':
 			case 'staging-grid':
 				courseStore.pushUndo();
 				courseStore.addCone({ id: generateId(), type: tool, lngLat, lockedTargetId: null });
+				break;
+
+			case 'trailer':
+				courseStore.pushUndo();
+				courseStore.addCone({ id: generateId(), type: 'trailer', lngLat, width: 80, height: 40, rotation: 0, lockedTargetId: null });
 				break;
 
 			case 'pointer': {
@@ -189,6 +203,30 @@ import SketchOverlay from './SketchOverlay.svelte';
 
 			case 'sketch':
 				break;
+
+			case 'staging-area':
+				stagingPolygonOverlay?.handleClick(e);
+				return;
+
+			case 'worker-zone':
+				workerZonePolygonOverlay?.handleClick(e);
+				return;
+
+			case 'hazard-point': {
+				courseStore.addHazardMarker({
+					id: generateId(),
+					type: 'point',
+					coordinates: [lngLat],
+					bufferFeet: toolStore.hazardBufferFeet
+				});
+				return;
+			}
+
+			case 'hazard-line': {
+				hazardLinePoints = [...hazardLinePoints, lngLat];
+				toolStore.setStatus(`Hazard line: ${hazardLinePoints.length} points. Double-click to finish.`);
+				return;
+			}
 
 			case 'select':
 				selectionStore.clear();
@@ -314,8 +352,30 @@ import SketchOverlay from './SketchOverlay.svelte';
 	}
 
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	function handleDblClick(e: any) {
+		if (toolStore.activeTool === 'staging-area') {
+			stagingPolygonOverlay?.handleDoubleClick(e);
+		}
+		if (toolStore.activeTool === 'worker-zone') {
+			workerZonePolygonOverlay?.handleDoubleClick(e);
+		}
+		if (toolStore.activeTool === 'hazard-line' && hazardLinePoints.length >= 2) {
+			courseStore.addHazardMarker({
+				id: generateId(),
+				type: 'line',
+				coordinates: [...hazardLinePoints],
+				bufferFeet: toolStore.hazardBufferFeet
+			});
+			hazardLinePoints = [];
+			toolStore.clearStatus();
+		}
+	}
+
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	function handleMouseMove(e: any) {
 		mousePos = [e.lngLat.lng, e.lngLat.lat];
+		stagingPolygonOverlay?.handleMouseMove(e);
+		workerZonePolygonOverlay?.handleMouseMove(e);
 	}
 
 	function updateMarkerScale() {
@@ -326,6 +386,41 @@ import SketchOverlay from './SketchOverlay.svelte';
 
 	// Box selection for select tool
 	let isBoxSelecting = false;
+
+	// Right-click pan in sketch mode
+	let isRightClickPanning = false;
+	let rightClickPanStart: { x: number; y: number } | null = null;
+
+	function initSketchPan() {
+		const canvasContainer = container.querySelector('.mapboxgl-canvas-container') as HTMLElement | null;
+		if (!canvasContainer) return;
+
+		canvasContainer.addEventListener('contextmenu', (e) => {
+			if (toolStore.activeTool === 'sketch') e.preventDefault();
+		});
+
+		canvasContainer.addEventListener('mousedown', (e) => {
+			if (toolStore.activeTool !== 'sketch' || e.button !== 2) return;
+			isRightClickPanning = true;
+			rightClickPanStart = { x: e.clientX, y: e.clientY };
+			canvasContainer.style.cursor = 'grabbing';
+		});
+
+		canvasContainer.addEventListener('mousemove', (e) => {
+			if (!isRightClickPanning || !rightClickPanStart) return;
+			const dx = e.clientX - rightClickPanStart.x;
+			const dy = e.clientY - rightClickPanStart.y;
+			(mapStore.map as mapboxgl.Map).panBy([-dx, -dy], { duration: 0 });
+			rightClickPanStart = { x: e.clientX, y: e.clientY };
+		});
+
+		canvasContainer.addEventListener('mouseup', (e) => {
+			if (e.button !== 2) return;
+			isRightClickPanning = false;
+			rightClickPanStart = null;
+			canvasContainer.style.cursor = '';
+		});
+	}
 
 	function initBoxSelection() {
 		container.addEventListener('mousedown', (e) => {
@@ -426,6 +521,9 @@ import SketchOverlay from './SketchOverlay.svelte';
 		scalePoint1Marker = null;
 		measurementOverlay?.cancelPending();
 		outlineOverlay?.cancelPending();
+		if (toolStore.activeTool !== 'hazard-line') {
+			hazardLinePoints = [];
+		}
 	});
 
 	// Autosave on course changes
@@ -489,6 +587,7 @@ import SketchOverlay from './SketchOverlay.svelte';
 		map.on('load', () => {
 			mapStore.setMap(map);
 			initBoxSelection();
+			initSketchPan();
 			if (sessionStorage.getItem('fitCourseOnLoad')) {
 				sessionStorage.removeItem('fitCourseOnLoad');
 				setTimeout(() => fitBoundsToCourse(), 100);
@@ -507,6 +606,7 @@ import SketchOverlay from './SketchOverlay.svelte';
 
 		map.on('click', handleClick);
 		map.on('mousemove', handleMouseMove);
+		map.on('dblclick', handleDblClick);
 		map.on('mousedown', (e: mapboxgl.MapMouseEvent) => sketchOverlay?.handleMouseDown(e));
 		map.on('mousemove', (e: mapboxgl.MapMouseEvent) => sketchOverlay?.handleMouseMove(e));
 		map.on('mouseup', () => sketchOverlay?.handleMouseUp());
@@ -642,6 +742,48 @@ import SketchOverlay from './SketchOverlay.svelte';
 		{#if layerStore.isVisible('sketches')}
 			<SketchOverlay bind:this={sketchOverlay} />
 		{/if}
+		{#if layerStore.isVisible('stagingAreas')}
+			<StagingOverlay />
+		{/if}
+		{#if layerStore.isVisible('workerZones')}
+			<WorkerZoneOverlay />
+		{/if}
+		{#if layerStore.isVisible('safetyZones')}
+			<HazardOverlay />
+		{/if}
+		{#if layerStore.isVisible('coneNumbers')}
+			<ConeNumberOverlay />
+		{/if}
+		<PolygonOverlay
+			bind:this={stagingPolygonOverlay}
+			activeTools={['staging-area']}
+			fillColor="#6495ED"
+			fillOpacity={0.2}
+			strokeColor="#6495ED"
+			onComplete={(vertices) => {
+				courseStore.addStagingArea({
+					id: generateId(),
+					vertices,
+					label: 'STAGING'
+				});
+			}}
+		/>
+		<PolygonOverlay
+			bind:this={workerZonePolygonOverlay}
+			activeTools={['worker-zone']}
+			fillColor="#ff6b6b"
+			fillOpacity={0.1}
+			strokeColor="#ff6b6b"
+			strokeDasharray={[6, 3]}
+			onComplete={(vertices) => {
+				const nextStation = Math.max(0, ...courseStore.course.workerZones.map(z => z.stationNumber)) + 1;
+				courseStore.addWorkerZone({
+					id: generateId(),
+					vertices,
+					stationNumber: nextStation
+				});
+			}}
+		/>
 	{/if}
 </div>
 
