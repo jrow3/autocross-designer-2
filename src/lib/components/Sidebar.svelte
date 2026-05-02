@@ -9,6 +9,7 @@
 	import { deserialize } from '$lib/engine/courseSerializer';
 	import { isSupabaseConfigured } from '$lib/services/supabase';
 	import type { LayerKey } from '$lib/stores/layerStore.svelte';
+	import { toolStore } from '$lib/stores/toolStore.svelte';
 	import type { CourseData } from '$lib/types/course';
 
 	let { onfitcourse, oncourseopened }: {
@@ -89,6 +90,25 @@
 				<div class="info-row">Cones: {coneCount()}</div>
 				<div class="info-row">Line: {lineLength()}</div>
 			</section>
+
+			{#if toolStore.activeTool === 'hazard-point' || toolStore.activeTool === 'hazard-line'}
+				<section>
+					<h3>Hazard Settings</h3>
+					<div class="control-row">
+						<label>Buffer Distance</label>
+						<div class="input-row">
+							<input
+								type="number"
+								min="1"
+								max="100"
+								value={toolStore.hazardBufferFeet}
+								oninput={(e) => toolStore.setHazardBufferFeet(Number((e.target as HTMLInputElement).value))}
+							/>
+							<span class="unit">ft</span>
+						</div>
+					</div>
+				</section>
+			{/if}
 
 			<section>
 				<h3>Layers</h3>

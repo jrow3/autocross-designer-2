@@ -25,6 +25,7 @@ import SketchOverlay from './SketchOverlay.svelte';
 	import PolygonOverlay from './PolygonOverlay.svelte';
 	import StagingOverlay from './StagingOverlay.svelte';
 	import WorkerZoneOverlay from './WorkerZoneOverlay.svelte';
+	import HazardOverlay from './HazardOverlay.svelte';
 	import ModeBanner from './ModeBanner.svelte';
 	import ScaleDialog from './ScaleDialog.svelte';
 	import { layerStore } from '$lib/stores/layerStore.svelte';
@@ -52,6 +53,9 @@ import SketchOverlay from './SketchOverlay.svelte';
 	let pendingNoteLngLat: LngLat | null = $state(null);
 	let mousePos: LngLat | null = $state(null);
 	let nextNoteNumber = $state(1);
+
+	// Hazard line tool state
+	let hazardLinePoints: LngLat[] = $state([]);
 
 	// Scale calibration state
 	let scalePoint1: LngLat | null = $state(null);
@@ -207,6 +211,22 @@ import SketchOverlay from './SketchOverlay.svelte';
 				workerZonePolygonOverlay?.handleClick(e);
 				return;
 
+			case 'hazard-point': {
+				courseStore.addHazardMarker({
+					id: generateId(),
+					type: 'point',
+					coordinates: [lngLat],
+					bufferFeet: toolStore.hazardBufferFeet
+				});
+				return;
+			}
+
+			case 'hazard-line': {
+				hazardLinePoints = [...hazardLinePoints, lngLat];
+				toolStore.setStatus(`Hazard line: ${hazardLinePoints.length} points. Double-click to finish.`);
+				return;
+			}
+
 			case 'select':
 				selectionStore.clear();
 				break;
@@ -337,6 +357,16 @@ import SketchOverlay from './SketchOverlay.svelte';
 		}
 		if (toolStore.activeTool === 'worker-zone') {
 			workerZonePolygonOverlay?.handleDoubleClick(e);
+		}
+		if (toolStore.activeTool === 'hazard-line' && hazardLinePoints.length >= 2) {
+			courseStore.addHazardMarker({
+				id: generateId(),
+				type: 'line',
+				coordinates: [...hazardLinePoints],
+				bufferFeet: toolStore.hazardBufferFeet
+			});
+			hazardLinePoints = [];
+			toolStore.clearStatus();
 		}
 	}
 
@@ -490,6 +520,9 @@ import SketchOverlay from './SketchOverlay.svelte';
 		scalePoint1Marker = null;
 		measurementOverlay?.cancelPending();
 		outlineOverlay?.cancelPending();
+		if (toolStore.activeTool !== 'hazard-line') {
+			hazardLinePoints = [];
+		}
 	});
 
 	// Autosave on course changes
@@ -713,6 +746,9 @@ import SketchOverlay from './SketchOverlay.svelte';
 		{/if}
 		{#if layerStore.isVisible('workerZones')}
 			<WorkerZoneOverlay />
+		{/if}
+		{#if layerStore.isVisible('safetyZones')}
+			<HazardOverlay />
 		{/if}
 		<PolygonOverlay
 			bind:this={stagingPolygonOverlay}

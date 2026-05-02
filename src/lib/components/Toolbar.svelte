@@ -132,6 +132,19 @@
 	</div>
 
 	<div class="toolbar-section">
+		<button class="section-header" onclick={() => toggle('safety')}>
+			<span class="chevron" class:open={!collapsed['safety']}>&#9656;</span>
+			<span>Safety</span>
+		</button>
+		{#if !collapsed['safety']}
+			<div class="section-body">
+				<ToolButton tool="hazard-point" label="Hazard Point" title="Mark a point hazard (pole, post)" />
+				<ToolButton tool="hazard-line" label="Hazard Line" title="Mark a line hazard (wall, barrier)" />
+			</div>
+		{/if}
+	</div>
+
+	<div class="toolbar-section">
 		<button class="section-header" onclick={() => toggle('edit')}>
 			<span class="chevron" class:open={!collapsed['edit']}>&#9656;</span>
 			<span>Edit</span>
