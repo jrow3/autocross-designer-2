@@ -533,6 +533,18 @@ import SketchOverlay from './SketchOverlay.svelte';
 						selectionStore.select('hazard', nearestHId);
 						return;
 					}
+					// Check sketches
+					for (const sk of courseStore.course.sketches) {
+						for (const pt of sk.points) {
+							const dx = pt[0] - clickLngLat[0];
+							const dy = pt[1] - clickLngLat[1];
+							if (dx * dx + dy * dy < 0.00005 * 0.00005) {
+								selectionStore.clear();
+								selectionStore.select('sketch', sk.id);
+								return;
+							}
+						}
+					}
 					selectionStore.clear();
 					return;
 				}
@@ -580,6 +592,11 @@ import SketchOverlay from './SketchOverlay.svelte';
 				for (const zone of courseStore.course.workerZones) {
 					if (zone.vertices.some(v => inBox(v as [number, number]))) {
 						selectionStore.select('worker-zone', zone.id);
+					}
+				}
+				for (const sk of courseStore.course.sketches) {
+					if (sk.points.some(p => inBox(p as [number, number]))) {
+						selectionStore.select('sketch', sk.id);
 					}
 				}
 			};

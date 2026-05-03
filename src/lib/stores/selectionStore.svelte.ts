@@ -1,6 +1,6 @@
 import { courseStore } from './courseStore.svelte';
 
-export type SelectableType = 'cone' | 'worker' | 'measurement' | 'outline' | 'hazard' | 'staging-area' | 'worker-zone';
+export type SelectableType = 'cone' | 'worker' | 'measurement' | 'outline' | 'hazard' | 'staging-area' | 'worker-zone' | 'sketch';
 
 export interface SelectedItem {
 	type: SelectableType;
@@ -94,6 +94,9 @@ export const selectionStore = {
 					break;
 				case 'worker-zone':
 					courseStore.removeWorkerZone(item.id);
+					break;
+				case 'sketch':
+					courseStore.removeSketch(item.id);
 					break;
 			}
 		}
