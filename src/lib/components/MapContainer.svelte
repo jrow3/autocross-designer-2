@@ -9,6 +9,7 @@
 	import { offsetPointerPosition } from '$lib/engine/coneLogic';
 	import { computeSlalomPositions } from '$lib/engine/slalomLogic';
 	import { ImageMap } from '$lib/engine/imageMap';
+	import { pointInPolygon } from '$lib/engine/polygonEngine';
 	import type { LngLat } from '$lib/types/course';
 	import ConeMarker from './ConeMarker.svelte';
 	import WorkerMarker from './WorkerMarker.svelte';
@@ -248,6 +249,22 @@ import SketchOverlay from './SketchOverlay.svelte';
 			}
 
 			case 'select': {
+				// Check if clicking inside a staging area
+				for (const area of courseStore.course.stagingAreas) {
+					if (pointInPolygon(lngLat, area.vertices)) {
+						selectionStore.clear();
+						selectionStore.select('staging-area', area.id);
+						return;
+					}
+				}
+				// Check if clicking inside a worker zone
+				for (const zone of courseStore.course.workerZones) {
+					if (pointInPolygon(lngLat, zone.vertices)) {
+						selectionStore.clear();
+						selectionStore.select('worker-zone', zone.id);
+						return;
+					}
+				}
 				// Check if clicking near a hazard marker
 				let closestHazardId = '';
 				let closestHazardDist = Infinity;
@@ -262,7 +279,6 @@ import SketchOverlay from './SketchOverlay.svelte';
 						}
 					}
 				}
-				// Select if within ~30m (0.0003 degrees)
 				if (closestHazardId && closestHazardDist < 0.0003 * 0.0003) {
 					selectionStore.clear();
 					selectionStore.select('hazard', closestHazardId);
