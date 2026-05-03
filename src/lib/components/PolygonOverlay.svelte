@@ -86,16 +86,16 @@
 		}
 	}
 
-	export function handleKeyDown(e: KeyboardEvent) {
-		if (!activeTools.includes(toolStore.activeTool)) return;
-		if (e.key === 'Enter' && vertices.length >= 3) {
+	export function close() {
+		if (vertices.length >= 3) {
 			closePolygon();
 		}
-		if (e.key === 'Escape') {
-			vertices = [];
-			mousePos = null;
-			updateSources();
-		}
+	}
+
+	export function cancel() {
+		vertices = [];
+		mousePos = null;
+		updateSources();
 	}
 
 	export function handleMouseMove(e: { lngLat: { lng: number; lat: number } }) {
@@ -151,12 +151,9 @@
 			}
 		});
 
-		// Listen for Enter/Escape
-		document.addEventListener('keydown', handleKeyDown);
 	});
 
 	onDestroy(() => {
-		document.removeEventListener('keydown', handleKeyDown);
 		const map = mapStore.map;
 		if (!map) return;
 

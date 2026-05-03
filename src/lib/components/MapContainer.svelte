@@ -489,6 +489,14 @@ import SketchOverlay from './SketchOverlay.svelte';
 						selectionStore.select('outline', String(i));
 					}
 				});
+				for (const h of courseStore.course.hazardMarkers) {
+					for (const coord of h.coordinates) {
+						if (inBox(coord as [number, number])) {
+							selectionStore.select('hazard', h.id);
+							break;
+						}
+					}
+				}
 			};
 
 			document.addEventListener('mousemove', onMove);
@@ -603,6 +611,14 @@ import SketchOverlay from './SketchOverlay.svelte';
 			document.addEventListener('keydown', (e) => {
 				if (e.key === 'Delete' || e.key === 'Backspace') {
 					sketchOverlay?.deleteSelected();
+				}
+				if (e.key === 'Enter') {
+					if (toolStore.activeTool === 'staging-area') stagingPolygonOverlay?.close();
+					if (toolStore.activeTool === 'worker-zone') workerZonePolygonOverlay?.close();
+				}
+				if (e.key === 'Escape') {
+					if (toolStore.activeTool === 'staging-area') stagingPolygonOverlay?.cancel();
+					if (toolStore.activeTool === 'worker-zone') workerZonePolygonOverlay?.cancel();
 				}
 			});
 		});
