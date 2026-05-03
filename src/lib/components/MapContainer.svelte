@@ -572,6 +572,16 @@ import SketchOverlay from './SketchOverlay.svelte';
 						}
 					}
 				}
+				for (const area of courseStore.course.stagingAreas) {
+					if (area.vertices.some(v => inBox(v as [number, number]))) {
+						selectionStore.select('staging-area', area.id);
+					}
+				}
+				for (const zone of courseStore.course.workerZones) {
+					if (zone.vertices.some(v => inBox(v as [number, number]))) {
+						selectionStore.select('worker-zone', zone.id);
+					}
+				}
 			};
 
 			document.addEventListener('mousemove', onMove);
