@@ -1,12 +1,27 @@
 <script lang="ts">
 	import { mapStore } from '$lib/stores/mapStore.svelte';
 	import { toolStore } from '$lib/stores/toolStore.svelte';
+	import { courseStore } from '$lib/stores/courseStore.svelte';
+	import { layerStore } from '$lib/stores/layerStore.svelte';
+	import { numberCones } from '$lib/engine/coneNumbering';
 	import ToolButton from './ToolButton.svelte';
 
 	let collapsed: Record<string, boolean> = $state({});
 
 	function toggle(section: string) {
 		collapsed[section] = !collapsed[section];
+	}
+
+	function runConeNumbering() {
+		const { cones, workerZones, drivingLine } = courseStore.course;
+		if (workerZones.length === 0) {
+			toolStore.setStatus('Draw worker zones first');
+			return;
+		}
+		const numbers = numberCones(cones, workerZones, drivingLine);
+		courseStore.setConeNumbers(numbers);
+		layerStore.setVisible('coneNumbers', true);
+		toolStore.setStatus(`Numbered ${Object.keys(numbers).length} cones`);
 	}
 </script>
 
@@ -97,6 +112,10 @@
 				<ToolButton tool="staging-area" label="Staging Area" title="Draw staging area polygon" />
 				<ToolButton tool="worker" label="Worker Station" title="Place worker station" />
 				<ToolButton tool="worker-zone" label="Worker Zone" title="Draw worker station zone" />
+				<button class="action-btn" onclick={runConeNumbering}>Number Cones</button>
+				{#if Object.keys(courseStore.course.coneNumbers).length > 0}
+					<button class="action-btn secondary" onclick={() => courseStore.clearConeNumbers()}>Clear Numbers</button>
+				{/if}
 			</div>
 		{/if}
 	</div>
@@ -265,6 +284,28 @@
 
 	.inline-checkbox input {
 		accent-color: var(--accent);
+	}
+
+	.action-btn {
+		width: 100%;
+		padding: 5px 8px;
+		background: var(--accent);
+		color: #fff;
+		border: none;
+		border-radius: 4px;
+		font-size: 12px;
+		cursor: pointer;
+		margin-top: 4px;
+	}
+
+	.action-btn:hover {
+		opacity: 0.9;
+	}
+
+	.action-btn.secondary {
+		background: var(--bg-surface);
+		color: var(--text-muted);
+		border: 1px solid var(--border);
 	}
 
 </style>

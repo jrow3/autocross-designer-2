@@ -35,13 +35,17 @@
 
 	function isNearFirst(point: LngLat): boolean {
 		if (vertices.length < 3) return false;
-		const map = mapStore.map as mapboxgl.Map | null;
-		if (!map || !('project' in map)) return false;
-		const firstPixel = map.project(vertices[0] as [number, number]);
-		const clickPixel = map.project(point as [number, number]);
-		const dx = firstPixel.x - clickPixel.x;
-		const dy = firstPixel.y - clickPixel.y;
-		return Math.sqrt(dx * dx + dy * dy) < 15;
+		const map = mapStore.map;
+		if (!map || typeof map.project !== 'function') return false;
+		try {
+			const firstPixel = map.project(vertices[0]);
+			const clickPixel = map.project(point);
+			const dx = firstPixel.x - clickPixel.x;
+			const dy = firstPixel.y - clickPixel.y;
+			return Math.sqrt(dx * dx + dy * dy) < 20;
+		} catch {
+			return false;
+		}
 	}
 
 	function closePolygon() {

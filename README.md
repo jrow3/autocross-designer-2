@@ -1,42 +1,40 @@
-# sv
+---
+date: 2026-04-16
+tags: [project, web-app, autocross, sveltekit, typescript]
+status: active
+type: project
+tech: [sveltekit, svelte-5, typescript, mapbox, supabase]
+---
 
-Everything you need to build a Svelte project, powered by [`sv`](https://github.com/sveltejs/cli).
+# Autocross Course Designer
 
-## Creating a project
+Browser-based tool for designing autocross courses with cone placement, driving lines, and measurement capabilities. Supports satellite imagery via Mapbox and custom image backgrounds.
 
-If you're seeing this, you've probably already done this step. Congrats!
+Live at: https://designer.autox.tools
 
-```sh
-# create a new project
-npx sv create my-app
-```
+## Tech Stack
+- SvelteKit + Svelte 5 runes + TypeScript
+- Mapbox GL v3 for satellite map integration
+- Supabase for cloud save/share (optional)
+- Static adapter → GitHub Pages deployment
+- GitHub Actions CI/CD
 
-To recreate this project with the same configuration:
+## Features
+- Map mode (Mapbox satellite) and image mode (uploaded course images)
+- Cone types: regular, pointer, start, finish, trailer, staging grid
+- Gates with optional directional pointer cones
+- Slaloms with configurable spacing/count
+- Distance measurement, driving lines, course outlines
+- Worker station placement, text notes
+- Scale calibration for image mode
+- Undo/redo, URL sharing, browser autosave
+- Box selection, multi-element drag
+- SVG and JSON export
 
-```sh
-# recreate this project
-npx sv@0.15.1 create --template minimal --types ts --no-install autocross-designer-2-temp
-```
+## Related Projects
+- [[autox-tools]] — SCCA design system and landing page
+- [[autocross-rankings]] — SCCA driver ranking system
+- [[scca-tools]] — SCCA financial analysis
 
-## Developing
-
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
-
-```sh
-npm run dev
-
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
-```
-
-## Building
-
-To create a production version of your app:
-
-```sh
-npm run build
-```
-
-You can preview the production build with `npm run preview`.
-
-> To deploy your app, you may need to install an [adapter](https://svelte.dev/docs/kit/adapters) for your target environment.
+## Source
+Repo: `jrow3/autocross-designer-2`. Run `npm run dev` for local dev, `npm run build` for static output.

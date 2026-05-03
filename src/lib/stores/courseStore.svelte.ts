@@ -239,7 +239,7 @@ export const courseStore = {
 
 	addHazardMarker(marker: HazardMarkerData): void {
 		this.pushUndo();
-		course.hazardMarkers.push(marker);
+		course.hazardMarkers = [...course.hazardMarkers, marker];
 	},
 
 	removeHazardMarker(id: string): void {

@@ -11,7 +11,6 @@
 	import type { LayerKey } from '$lib/stores/layerStore.svelte';
 	import { toolStore } from '$lib/stores/toolStore.svelte';
 	import type { CourseData } from '$lib/types/course';
-	import { numberCones } from '$lib/engine/coneNumbering';
 
 	let { onfitcourse, oncourseopened }: {
 		onfitcourse?: (data: CourseData) => void;
@@ -56,17 +55,6 @@
 		mapStore.map?.flyTo({ center: lngLat, speed: 2 });
 	}
 
-	function runConeNumbering() {
-		const { cones, workerZones, drivingLine } = courseStore.course;
-		if (workerZones.length === 0) {
-			toolStore.setStatus('Draw worker zones first');
-			return;
-		}
-		const numbers = numberCones(cones, workerZones, drivingLine);
-		courseStore.setConeNumbers(numbers);
-		layerStore.setVisible('coneNumbers', true);
-		toolStore.setStatus(`Numbered ${Object.keys(numbers).length} cones`);
-	}
 
 	function truncate(text: string, max: number): string {
 		return text.length > max ? text.substring(0, max) + '...' : text;
@@ -245,19 +233,6 @@
 				{/if}
 			</section>
 
-			<section>
-				<h3>Cone Numbering</h3>
-				<div class="setting">
-					<button class="action-btn" onclick={runConeNumbering}>
-						Number Cones
-					</button>
-					{#if Object.keys(courseStore.course.coneNumbers).length > 0}
-						<button class="action-btn secondary" onclick={() => courseStore.clearConeNumbers()}>
-							Clear Numbers
-						</button>
-					{/if}
-				</div>
-			</section>
 
 				{#if isSupabaseConfigured()}
 					<section>
