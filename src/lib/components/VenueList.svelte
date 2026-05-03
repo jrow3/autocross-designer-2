@@ -1,6 +1,8 @@
 <script lang="ts">
 	import { courseStore } from '$lib/stores/courseStore.svelte';
+	import { mapStore } from '$lib/stores/mapStore.svelte';
 	import type { VenueData } from '$lib/types/course';
+	import type mapboxgl from 'mapbox-gl';
 
 	const STORAGE_KEY = 'autocross-venues';
 
@@ -40,6 +42,11 @@
 		for (const obs of v.obstacles) {
 			courseStore.addObstacle({ ...obs, id: String(Date.now() + Math.random()) });
 		}
+		const map = mapStore.map;
+		if (map && 'flyTo' in map) {
+			(map as mapboxgl.Map).flyTo({ center: v.mapCenter, zoom: v.mapZoom });
+		}
+		courseStore.setMapView(v.mapCenter, v.mapZoom);
 	}
 
 	function deleteVenue(name: string) {
