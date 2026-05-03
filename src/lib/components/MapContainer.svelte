@@ -495,7 +495,47 @@ import SketchOverlay from './SketchOverlay.svelte';
 				document.removeEventListener('mouseup', onUp);
 
 				const rect = selectionStore.boxRect;
-				if (rect.width < 5 && rect.height < 5) return;
+				if (rect.width < 5 && rect.height < 5) {
+					// Single click, not a drag — try selecting zones/hazards
+					const mapEl2 = map as mapboxgl.Map;
+					const containerRect2 = container.getBoundingClientRect();
+					const clickPt = mapEl2.unproject([
+						rect.x - containerRect2.left,
+						rect.y - containerRect2.top
+					]);
+					const clickLngLat: LngLat = [clickPt.lng, clickPt.lat];
+					for (const area of courseStore.course.stagingAreas) {
+						if (pointInPolygon(clickLngLat, area.vertices)) {
+							selectionStore.clear();
+							selectionStore.select('staging-area', area.id);
+							return;
+						}
+					}
+					for (const zone of courseStore.course.workerZones) {
+						if (pointInPolygon(clickLngLat, zone.vertices)) {
+							selectionStore.clear();
+							selectionStore.select('worker-zone', zone.id);
+							return;
+						}
+					}
+					let nearestHId = '';
+					let nearestHDist = Infinity;
+					for (const m of courseStore.course.hazardMarkers) {
+						for (const coord of m.coordinates) {
+							const dx = coord[0] - clickLngLat[0];
+							const dy = coord[1] - clickLngLat[1];
+							const d = dx * dx + dy * dy;
+							if (d < nearestHDist) { nearestHDist = d; nearestHId = m.id; }
+						}
+					}
+					if (nearestHId && nearestHDist < 0.0003 * 0.0003) {
+						selectionStore.clear();
+						selectionStore.select('hazard', nearestHId);
+						return;
+					}
+					selectionStore.clear();
+					return;
+				}
 
 				selectionStore.clear();
 				const mapEl = map as mapboxgl.Map;
