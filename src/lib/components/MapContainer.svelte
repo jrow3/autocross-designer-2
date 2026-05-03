@@ -417,13 +417,11 @@ import SketchOverlay from './SketchOverlay.svelte';
 		if (!canvasContainer) return;
 
 		canvasContainer.addEventListener('contextmenu', (e) => {
-			const tool = toolStore.activeTool;
-			if (tool === 'sketch' || tool === 'select') e.preventDefault();
+			e.preventDefault();
 		});
 
 		canvasContainer.addEventListener('mousedown', (e) => {
-			const tool = toolStore.activeTool;
-			if ((tool !== 'sketch' && tool !== 'select') || e.button !== 2) return;
+			if (e.button !== 2) return;
 			isRightClickPanning = true;
 			rightClickPanStart = { x: e.clientX, y: e.clientY };
 			canvasContainer.style.cursor = 'grabbing';
