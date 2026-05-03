@@ -98,6 +98,10 @@
 		updateSources();
 	}
 
+	export function getFirstVertex(): LngLat | null {
+		return vertices.length >= 3 ? vertices[0] : null;
+	}
+
 	export function handleMouseMove(e: { lngLat: { lng: number; lat: number } }) {
 		if (!activeTools.includes(toolStore.activeTool)) return;
 		mousePos = [e.lngLat.lng, e.lngLat.lat];

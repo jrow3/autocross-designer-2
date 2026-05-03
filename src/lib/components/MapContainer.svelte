@@ -122,6 +122,23 @@ import SketchOverlay from './SketchOverlay.svelte';
 		}
 	});
 
+	function tryClosePolygon(overlay: PolygonOverlay | undefined, e: any): boolean {
+		if (!overlay) return false;
+		const firstVertex = overlay.getFirstVertex();
+		if (!firstVertex) return false;
+		const map = mapStore.map as mapboxgl.Map;
+		if (!map || !e.point) return false;
+		const firstPx = map.project(firstVertex as [number, number]);
+		const clickPx = e.point;
+		const dx = firstPx.x - clickPx.x;
+		const dy = firstPx.y - clickPx.y;
+		if (dx * dx + dy * dy < 20 * 20) {
+			overlay.close();
+			return true;
+		}
+		return false;
+	}
+
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	function handleClick(e: any) {
 		const lngLat: LngLat = [e.lngLat.lng, e.lngLat.lat];
@@ -194,10 +211,12 @@ import SketchOverlay from './SketchOverlay.svelte';
 				break;
 
 			case 'staging-area':
+				if (tryClosePolygon(stagingPolygonOverlay, e)) return;
 				stagingPolygonOverlay?.handleClick(e);
 				return;
 
 			case 'worker-zone':
+				if (tryClosePolygon(workerZonePolygonOverlay, e)) return;
 				workerZonePolygonOverlay?.handleClick(e);
 				return;
 
