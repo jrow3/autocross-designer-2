@@ -229,35 +229,25 @@ import SketchOverlay from './SketchOverlay.svelte';
 			}
 
 			case 'select': {
-				// Check if clicking on a hazard marker/buffer
-				const map = mapStore.map as mapboxgl.Map;
-				if (map && typeof map.queryRenderedFeatures === 'function') {
-					const point = e.point;
-					const hazardFeatures = map.queryRenderedFeatures(point, {
-						layers: ['hazard-marker-points', 'hazard-marker-lines', 'hazard-buffer-fill']
-					});
-					if (hazardFeatures.length > 0) {
-						// Find the hazard marker closest to the click
-						const clickLngLat = lngLat;
-						let closestId = '';
-						let closestDist = Infinity;
-						for (const marker of courseStore.course.hazardMarkers) {
-							for (const coord of marker.coordinates) {
-								const dx = coord[0] - clickLngLat[0];
-								const dy = coord[1] - clickLngLat[1];
-								const d = dx * dx + dy * dy;
-								if (d < closestDist) {
-									closestDist = d;
-									closestId = marker.id;
-								}
-							}
-						}
-						if (closestId) {
-							selectionStore.clear();
-							selectionStore.select('hazard', closestId);
-							break;
+				// Check if clicking near a hazard marker
+				let closestHazardId = '';
+				let closestHazardDist = Infinity;
+				for (const marker of courseStore.course.hazardMarkers) {
+					for (const coord of marker.coordinates) {
+						const dx = coord[0] - lngLat[0];
+						const dy = coord[1] - lngLat[1];
+						const d = dx * dx + dy * dy;
+						if (d < closestHazardDist) {
+							closestHazardDist = d;
+							closestHazardId = marker.id;
 						}
 					}
+				}
+				// Select if within ~30m (0.0003 degrees)
+				if (closestHazardId && closestHazardDist < 0.0003 * 0.0003) {
+					selectionStore.clear();
+					selectionStore.select('hazard', closestHazardId);
+					break;
 				}
 				selectionStore.clear();
 				break;

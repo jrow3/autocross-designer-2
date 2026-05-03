@@ -75,17 +75,6 @@
 	export function handleClick(e: { lngLat: { lng: number; lat: number }; point?: { x: number; y: number } }) {
 		if (!activeTools.includes(toolStore.activeTool)) return;
 		const point: LngLat = [e.lngLat.lng, e.lngLat.lat];
-
-		// Close polygon if clicking near the first vertex
-		if (vertices.length >= 3) {
-			const [fx, fy] = vertices[0];
-			const [px, py] = point;
-			if (Math.abs(px - fx) < 0.001 && Math.abs(py - fy) < 0.001) {
-				closePolygon();
-				return;
-			}
-		}
-
 		vertices = [...vertices, point];
 		updateSources();
 	}

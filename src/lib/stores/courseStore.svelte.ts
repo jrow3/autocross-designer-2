@@ -204,7 +204,7 @@ export const courseStore = {
 
 	addStagingArea(area: StagingAreaData): void {
 		this.pushUndo();
-		course.stagingAreas.push(area);
+		course.stagingAreas = [...course.stagingAreas, area];
 	},
 
 	removeStagingArea(id: string): void {
@@ -219,7 +219,7 @@ export const courseStore = {
 
 	addWorkerZone(zone: WorkerZoneData): void {
 		this.pushUndo();
-		course.workerZones.push(zone);
+		course.workerZones = [...course.workerZones, zone];
 	},
 
 	removeWorkerZone(id: string): void {
