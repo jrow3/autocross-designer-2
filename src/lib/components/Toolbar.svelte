@@ -1,8 +1,6 @@
 <script lang="ts">
 	import { mapStore } from '$lib/stores/mapStore.svelte';
 	import { toolStore } from '$lib/stores/toolStore.svelte';
-	import { OBSTACLE_TYPES } from '$lib/engine/obstacleTypes';
-	import type { ObstacleTypeId } from '$lib/types/course';
 	import ToolButton from './ToolButton.svelte';
 
 	let collapsed: Record<string, boolean> = $state({});
@@ -24,17 +22,6 @@
 				<ToolButton tool="pointer" label="Pointer" title="Pointer Cone" />
 				<ToolButton tool="start-cone" label="Start" title="Start Cone" />
 				<ToolButton tool="finish-cone" label="Finish" title="Finish Cone" />
-			</div>
-		{/if}
-	</div>
-
-	<div class="toolbar-section">
-		<button class="section-header" onclick={() => toggle('layout')}>
-			<span class="chevron" class:open={!collapsed['layout']}>&#9656;</span>
-			<span>Course Elements</span>
-		</button>
-		{#if !collapsed['layout']}
-			<div class="section-body">
 				<ToolButton tool="gate" label="Gate" title="Place gate (2-click)" />
 				{#if toolStore.activeTool === 'gate'}
 					<div class="inline-settings">
@@ -81,6 +68,17 @@
 						</label>
 					</div>
 				{/if}
+			</div>
+		{/if}
+	</div>
+
+	<div class="toolbar-section">
+		<button class="section-header" onclick={() => toggle('course')}>
+			<span class="chevron" class:open={!collapsed['course']}>&#9656;</span>
+			<span>Course</span>
+		</button>
+		{#if !collapsed['course']}
+			<div class="section-body">
 				<ToolButton tool="drivingline" label="Driving Line" title="Draw driving line" />
 				<ToolButton tool="courseoutline" label="Outline" title="Draw course outline" />
 				<ToolButton tool="sketch" label="Sketch" title="Freehand sketch line" />
@@ -89,44 +87,16 @@
 	</div>
 
 	<div class="toolbar-section">
-		<button class="section-header" onclick={() => toggle('lot')}>
-			<span class="chevron" class:open={!collapsed['lot']}>&#9656;</span>
-			<span>Lot Features</span>
+		<button class="section-header" onclick={() => toggle('areas')}>
+			<span class="chevron" class:open={!collapsed['areas']}>&#9656;</span>
+			<span>Areas</span>
 		</button>
-		{#if !collapsed['lot']}
+		{#if !collapsed['areas']}
 			<div class="section-body">
-				<ToolButton tool="obstacle" label="Obstacle" title="Place obstacle" />
-				{#if toolStore.activeTool === 'obstacle'}
-					<div class="inline-settings">
-						<select
-							class="inline-select"
-							value={toolStore.selectedObstacleType}
-							onchange={(e) => toolStore.setObstacleType((e.target as HTMLSelectElement).value as ObstacleTypeId)}
-						>
-							{#each OBSTACLE_TYPES as ot}
-								<option value={ot.id}>{ot.symbol} {ot.label}</option>
-							{/each}
-						</select>
-					</div>
-				{/if}
 				<ToolButton tool="trailer" label="Trailer" title="Place trailer" />
-				<ToolButton tool="staging-grid" label="Staging Grid" title="Place staging grid" />
 				<ToolButton tool="staging-area" label="Staging Area" title="Draw staging area polygon" />
-			</div>
-		{/if}
-	</div>
-
-	<div class="toolbar-section">
-		<button class="section-header" onclick={() => toggle('annotations')}>
-			<span class="chevron" class:open={!collapsed['annotations']}>&#9656;</span>
-			<span>Annotations</span>
-		</button>
-		{#if !collapsed['annotations']}
-			<div class="section-body">
 				<ToolButton tool="worker" label="Worker Station" title="Place worker station" />
 				<ToolButton tool="worker-zone" label="Worker Zone" title="Draw worker station zone" />
-				<ToolButton tool="note" label="Note" title="Add text note" />
-				<ToolButton tool="measure" label="Measure" title="Measure distance" />
 			</div>
 		{/if}
 	</div>
@@ -140,6 +110,19 @@
 			<div class="section-body">
 				<ToolButton tool="hazard-point" label="Hazard Point" title="Mark a point hazard (pole, post)" />
 				<ToolButton tool="hazard-line" label="Hazard Line" title="Mark a line hazard (wall, barrier)" />
+			</div>
+		{/if}
+	</div>
+
+	<div class="toolbar-section">
+		<button class="section-header" onclick={() => toggle('annotations')}>
+			<span class="chevron" class:open={!collapsed['annotations']}>&#9656;</span>
+			<span>Annotations</span>
+		</button>
+		{#if !collapsed['annotations']}
+			<div class="section-body">
+				<ToolButton tool="note" label="Note" title="Add text note" />
+				<ToolButton tool="measure" label="Measure" title="Measure distance" />
 			</div>
 		{/if}
 	</div>
@@ -266,14 +249,4 @@
 		accent-color: var(--accent);
 	}
 
-	.inline-select {
-		width: 100%;
-		padding: 4px 6px;
-		background: var(--bg-base);
-		border: 1px solid var(--border);
-		border-radius: 3px;
-		color: var(--text-secondary);
-		font-size: 12px;
-		cursor: pointer;
-	}
 </style>

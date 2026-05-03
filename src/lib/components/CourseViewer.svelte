@@ -7,7 +7,6 @@
 	import { layerStore } from '$lib/stores/layerStore.svelte';
 	import { saveLocal } from '$lib/services/courseService';
 	import ConeMarker from './ConeMarker.svelte';
-	import ObstacleMarker from './ObstacleMarker.svelte';
 	import WorkerMarker from './WorkerMarker.svelte';
 	import NoteMarker from './NoteMarker.svelte';
 	import DrivingLine from './DrivingLine.svelte';
@@ -23,7 +22,6 @@
 
 	const toggleableLayers = [
 		{ key: 'cones' as const, label: 'Cones' },
-		{ key: 'obstacles' as const, label: 'Obstacles' },
 		{ key: 'workers' as const, label: 'Workers' },
 		{ key: 'notes' as const, label: 'Notes' },
 		{ key: 'drivingLine' as const, label: 'Driving Line' },
@@ -70,7 +68,6 @@
 			for (const c of course.cones) points.push(c.lngLat as [number, number]);
 			for (const wp of course.drivingLine) points.push(wp.lngLat as [number, number]);
 			for (const n of course.notes) points.push(n.lngLat as [number, number]);
-			for (const o of course.obstacles) points.push(o.lngLat as [number, number]);
 			for (const w of course.workers) points.push(w.lngLat as [number, number]);
 
 			if (points.length > 0) {
@@ -120,11 +117,6 @@
 		{#if layerStore.isVisible('cones')}
 			{#each courseStore.course.cones as cone (cone.id)}
 				<ConeMarker {cone} readonly={true} />
-			{/each}
-		{/if}
-		{#if layerStore.isVisible('obstacles')}
-			{#each courseStore.course.obstacles as obstacle (obstacle.id)}
-				<ObstacleMarker {obstacle} />
 			{/each}
 		{/if}
 		{#if layerStore.isVisible('workers')}

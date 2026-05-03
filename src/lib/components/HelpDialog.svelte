@@ -57,7 +57,7 @@
 			<section>
 				<h3>Sidebar Controls</h3>
 				<dl>
-					<dt>Layers</dt><dd>Toggle visibility of cones, obstacles, workers, driving line, measurements, notes, outline, and grid.</dd>
+					<dt>Layers</dt><dd>Toggle visibility of cones, workers, driving line, measurements, notes, outline, and grid.</dd>
 					<dt>Marker Size</dt><dd>Slider to scale all markers up or down.</dd>
 					<dt>Grid Overlay</dt><dd>Toggle a grid with configurable spacing (feet), rotation, and light/dark line style.</dd>
 					<dt>Map Fade</dt><dd>Desaturate and darken the satellite map so course elements stand out. Useful for PDF export.</dd>

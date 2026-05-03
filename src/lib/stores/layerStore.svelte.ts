@@ -1,6 +1,5 @@
 export type LayerKey =
 	| 'cones'
-	| 'obstacles'
 	| 'workers'
 	| 'drivingLine'
 	| 'measurements'
@@ -21,7 +20,6 @@ export interface Layer {
 
 const layers = $state<Layer[]>([
 	{ key: 'cones', label: 'Cones', visible: true },
-	{ key: 'obstacles', label: 'Obstacles', visible: true },
 	{ key: 'workers', label: 'Workers', visible: true },
 	{ key: 'drivingLine', label: 'Driving Line', visible: true },
 	{ key: 'measurements', label: 'Measurements', visible: true },

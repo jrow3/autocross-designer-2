@@ -1,5 +1,4 @@
 import type { CourseData, LngLat } from '$lib/types/course';
-import { getObstacleType } from './obstacleTypes';
 import { catmullRomSpline } from './catmullRom';
 
 interface Bounds {
@@ -9,7 +8,6 @@ interface Bounds {
 function allPoints(data: CourseData): LngLat[] {
 	const pts: LngLat[] = [];
 	for (const c of data.cones) pts.push(c.lngLat);
-	for (const o of data.obstacles) pts.push(o.lngLat);
 	for (const w of data.workers) pts.push(w.lngLat);
 	for (const n of data.notes) pts.push(n.lngLat);
 	for (const wp of data.drivingLine) pts.push(wp.lngLat);
@@ -74,14 +72,6 @@ export function exportSVG(data: CourseData, title = ''): string {
 		else if (c.type === 'start-cone') fill = '#22c55e';
 		else if (c.type === 'finish-cone') fill = '#ffffff';
 		lines.push(`<circle cx="${cx}" cy="${cy}" r="4" fill="${fill}" stroke="#fff" stroke-width="1"/>`);
-	}
-
-	// Obstacles
-	for (const o of data.obstacles) {
-		const config = getObstacleType(o.type);
-		const ox = tx(o.lngLat[0], b).toFixed(2);
-		const oy = ty(o.lngLat[1], b).toFixed(2);
-		lines.push(`<text x="${ox}" y="${oy}" text-anchor="middle" dominant-baseline="central" fill="${config?.color ?? '#ef4444'}" font-size="12">${esc(config?.symbol ?? '?')}</text>`);
 	}
 
 	// Workers

@@ -165,9 +165,6 @@
 					if (item.type === 'cone' && item.id !== cone.id) {
 						const c = courseStore.course.cones.find(c => c.id === item.id);
 						if (c) groupOffsets.push({ type: 'cone', id: item.id, offset: [c.lngLat[0] - dragStartPos[0], c.lngLat[1] - dragStartPos[1]] });
-					} else if (item.type === 'obstacle') {
-						const o = courseStore.course.obstacles.find(o => o.id === item.id);
-						if (o) groupOffsets.push({ type: 'obstacle', id: item.id, offset: [o.lngLat[0] - dragStartPos[0], o.lngLat[1] - dragStartPos[1]] });
 					} else if (item.type === 'worker') {
 						const w = courseStore.course.workers.find(w => w.id === item.id);
 						if (w) groupOffsets.push({ type: 'worker', id: item.id, offset: [w.lngLat[0] - dragStartPos[0], w.lngLat[1] - dragStartPos[1]] });
@@ -187,7 +184,6 @@
 			for (const g of groupOffsets) {
 				const moved: LngLat = [newPos[0] + g.offset[0], newPos[1] + g.offset[1]];
 				if (g.type === 'cone') courseStore.updateConePosition(g.id, moved);
-				else if (g.type === 'obstacle') courseStore.updateObstaclePosition(g.id, moved);
 				else if (g.type === 'worker') courseStore.updateWorkerPosition(g.id, moved);
 			}
 		});

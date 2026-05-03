@@ -11,7 +11,6 @@
 	import { ImageMap } from '$lib/engine/imageMap';
 	import type { LngLat } from '$lib/types/course';
 	import ConeMarker from './ConeMarker.svelte';
-	import ObstacleMarker from './ObstacleMarker.svelte';
 	import WorkerMarker from './WorkerMarker.svelte';
 	import NoteMarker from './NoteMarker.svelte';
 	import NoteDialog from './NoteDialog.svelte';
@@ -132,7 +131,6 @@ import SketchOverlay from './SketchOverlay.svelte';
 			case 'regular':
 			case 'start-cone':
 			case 'finish-cone':
-			case 'staging-grid':
 				courseStore.pushUndo();
 				courseStore.addCone({ id: generateId(), type: tool, lngLat, lockedTargetId: null });
 				break;
@@ -160,15 +158,6 @@ import SketchOverlay from './SketchOverlay.svelte';
 
 			case 'slalom':
 				handleSlalomClick(lngLat);
-				break;
-
-			case 'obstacle':
-				courseStore.pushUndo();
-				courseStore.addObstacle({
-					id: generateId(),
-					type: toolStore.selectedObstacleType,
-					lngLat
-				});
 				break;
 
 			case 'worker':
@@ -466,9 +455,6 @@ import SketchOverlay from './SketchOverlay.svelte';
 				for (const cone of courseStore.course.cones) {
 					if (inBox(cone.lngLat as [number, number])) selectionStore.select('cone', cone.id);
 				}
-				for (const obs of courseStore.course.obstacles) {
-					if (inBox(obs.lngLat as [number, number])) selectionStore.select('obstacle', obs.id);
-				}
 				for (const w of courseStore.course.workers) {
 					if (inBox(w.lngLat as [number, number])) selectionStore.select('worker', w.id);
 				}
@@ -530,7 +516,6 @@ import SketchOverlay from './SketchOverlay.svelte';
 	// Autosave on course changes
 	$effect(() => {
 		const _cones = courseStore.course.cones.length;
-		const _obstacles = courseStore.course.obstacles.length;
 		const _workers = courseStore.course.workers.length;
 		const _notes = courseStore.course.notes.length;
 		const _waypoints = courseStore.course.drivingLine.length;
@@ -662,7 +647,6 @@ import SketchOverlay from './SketchOverlay.svelte';
 		for (const wp of course.drivingLine) points.push(wp.lngLat);
 		for (const m of course.measurements) { points.push(m.p1); points.push(m.p2); }
 		for (const n of course.notes) points.push(n.lngLat);
-		for (const o of course.obstacles) points.push(o.lngLat);
 		for (const w of course.workers) points.push(w.lngLat);
 		for (const s of course.courseOutline) { points.push(s.p1); points.push(s.p2); }
 		for (const sk of (course.sketches ?? [])) {
@@ -713,11 +697,6 @@ import SketchOverlay from './SketchOverlay.svelte';
 		{#if layerStore.isVisible('cones')}
 			{#each courseStore.course.cones as cone (cone.id)}
 				<ConeMarker {cone} />
-			{/each}
-		{/if}
-		{#if layerStore.isVisible('obstacles')}
-			{#each courseStore.course.obstacles as obstacle (obstacle.id)}
-				<ObstacleMarker {obstacle} />
 			{/each}
 		{/if}
 		{#if layerStore.isVisible('workers')}

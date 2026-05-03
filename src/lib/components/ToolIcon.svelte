@@ -29,19 +29,21 @@
 		<polygon points="13,3 11,5 14,5" fill="var(--driving-line)" />
 	{:else if tool === 'courseoutline'}
 		<rect x="2" y="3" width="12" height="10" rx="2" stroke="currentColor" stroke-width="1.5" stroke-dasharray="3 2" fill="none" />
-	{:else if tool === 'obstacle'}
-		<polygon points="8,2 15,14 1,14" stroke="var(--danger)" stroke-width="1.5" fill="none" />
-		<text x="8" y="12.5" text-anchor="middle" font-size="8" font-weight="bold" fill="var(--danger)">!</text>
 	{:else if tool === 'trailer'}
 		<rect x="4" y="5" width="10" height="6" rx="1" fill="currentColor" />
 		<polygon points="4,7 1,8 4,9" fill="currentColor" />
-	{:else if tool === 'staging-grid'}
-		<circle cx="4" cy="5" r="1.5" fill="currentColor" />
-		<circle cx="8" cy="5" r="1.5" fill="currentColor" />
-		<circle cx="12" cy="5" r="1.5" fill="currentColor" />
-		<circle cx="4" cy="9" r="1.5" fill="currentColor" />
-		<circle cx="8" cy="9" r="1.5" fill="currentColor" />
-		<circle cx="12" cy="9" r="1.5" fill="currentColor" />
+	{:else if tool === 'staging-area'}
+		<polygon points="2,12 5,3 14,4 13,13" stroke="#6495ED" stroke-width="1.5" stroke-dasharray="3 2" fill="#6495ED" fill-opacity="0.2" />
+	{:else if tool === 'worker-zone'}
+		<polygon points="2,13 3,3 13,3 13,13" stroke="#ff6b6b" stroke-width="1.5" stroke-dasharray="3 2" fill="#ff6b6b" fill-opacity="0.15" />
+		<text x="8" y="10.5" text-anchor="middle" font-size="6" font-weight="bold" fill="#ff6b6b">1</text>
+	{:else if tool === 'hazard-point'}
+		<circle cx="8" cy="8" r="5" stroke="#e53e3e" stroke-width="1.5" fill="none" />
+		<circle cx="8" cy="8" r="2.5" fill="#e53e3e" />
+	{:else if tool === 'hazard-line'}
+		<line x1="3" y1="12" x2="13" y2="4" stroke="#e53e3e" stroke-width="2" />
+		<line x1="1" y1="9" x2="11" y2="1" stroke="#e53e3e" stroke-width="0.75" stroke-dasharray="2 2" opacity="0.6" />
+		<line x1="5" y1="15" x2="15" y2="7" stroke="#e53e3e" stroke-width="0.75" stroke-dasharray="2 2" opacity="0.6" />
 	{:else if tool === 'worker'}
 		<circle cx="8" cy="4.5" r="2.5" fill="var(--worker)" />
 		<path d="M3 14 Q3 9 8 9 Q13 9 13 14" fill="var(--worker)" />
