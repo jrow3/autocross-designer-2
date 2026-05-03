@@ -110,6 +110,24 @@
 			<div class="section-body">
 				<ToolButton tool="hazard-point" label="Hazard Point" title="Mark a point hazard (pole, post)" />
 				<ToolButton tool="hazard-line" label="Hazard Line" title="Mark a line hazard (wall, barrier)" />
+				{#if toolStore.activeTool === 'hazard-point' || toolStore.activeTool === 'hazard-line'}
+					<div class="inline-settings">
+						<label>
+							<span>Buffer</span>
+							<div class="inline-input-row">
+								<input
+									type="number"
+									min="1"
+									max="100"
+									step="1"
+									value={toolStore.hazardBufferFeet}
+									onchange={(e) => { const v = parseFloat((e.target as HTMLInputElement).value); if (v > 0) toolStore.setHazardBufferFeet(v); }}
+								/>
+								<span class="inline-unit">ft</span>
+							</div>
+						</label>
+					</div>
+				{/if}
 			</div>
 		{/if}
 	</div>
