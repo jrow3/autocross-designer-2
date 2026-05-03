@@ -228,9 +228,40 @@ import SketchOverlay from './SketchOverlay.svelte';
 				return;
 			}
 
-			case 'select':
+			case 'select': {
+				// Check if clicking on a hazard marker/buffer
+				const map = mapStore.map as mapboxgl.Map;
+				if (map && typeof map.queryRenderedFeatures === 'function') {
+					const point = e.point;
+					const hazardFeatures = map.queryRenderedFeatures(point, {
+						layers: ['hazard-marker-points', 'hazard-marker-lines', 'hazard-buffer-fill']
+					});
+					if (hazardFeatures.length > 0) {
+						// Find the hazard marker closest to the click
+						const clickLngLat = lngLat;
+						let closestId = '';
+						let closestDist = Infinity;
+						for (const marker of courseStore.course.hazardMarkers) {
+							for (const coord of marker.coordinates) {
+								const dx = coord[0] - clickLngLat[0];
+								const dy = coord[1] - clickLngLat[1];
+								const d = dx * dx + dy * dy;
+								if (d < closestDist) {
+									closestDist = d;
+									closestId = marker.id;
+								}
+							}
+						}
+						if (closestId) {
+							selectionStore.clear();
+							selectionStore.select('hazard', closestId);
+							break;
+						}
+					}
+				}
 				selectionStore.clear();
 				break;
+			}
 		}
 	}
 
@@ -386,11 +417,13 @@ import SketchOverlay from './SketchOverlay.svelte';
 		if (!canvasContainer) return;
 
 		canvasContainer.addEventListener('contextmenu', (e) => {
-			if (toolStore.activeTool === 'sketch') e.preventDefault();
+			const tool = toolStore.activeTool;
+			if (tool === 'sketch' || tool === 'select') e.preventDefault();
 		});
 
 		canvasContainer.addEventListener('mousedown', (e) => {
-			if (toolStore.activeTool !== 'sketch' || e.button !== 2) return;
+			const tool = toolStore.activeTool;
+			if ((tool !== 'sketch' && tool !== 'select') || e.button !== 2) return;
 			isRightClickPanning = true;
 			rightClickPanStart = { x: e.clientX, y: e.clientY };
 			canvasContainer.style.cursor = 'grabbing';

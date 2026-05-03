@@ -33,19 +33,26 @@
 	let vertices = $state<LngLat[]>([]);
 	let mousePos = $state<LngLat | null>(null);
 
-	function isNearFirst(point: LngLat): boolean {
+	function isNearFirst(point: LngLat, e?: { point?: { x: number; y: number } }): boolean {
 		if (vertices.length < 3) return false;
+
+		// Method 1: query the rendered first-vertex dot on the map
 		const map = mapStore.map;
-		if (!map || typeof map.project !== 'function') return false;
-		try {
-			const firstPixel = map.project(vertices[0]);
-			const clickPixel = map.project(point);
-			const dx = firstPixel.x - clickPixel.x;
-			const dy = firstPixel.y - clickPixel.y;
-			return Math.sqrt(dx * dx + dy * dy) < 20;
-		} catch {
-			return false;
+		if (map && typeof map.queryRenderedFeatures === 'function' && e?.point) {
+			try {
+				const bbox: [mapboxgl.PointLike, mapboxgl.PointLike] = [
+					[e.point.x - 12, e.point.y - 12],
+					[e.point.x + 12, e.point.y + 12]
+				];
+				const hits = map.queryRenderedFeatures(bbox, { layers: [DOT_LAYER] });
+				if (hits.some((f: { properties?: { index?: number } }) => f.properties?.index === 0)) return true;
+			} catch {}
 		}
+
+		// Method 2: coordinate distance fallback
+		const [fx, fy] = vertices[0];
+		const [px, py] = point;
+		return Math.abs(px - fx) < 0.0005 && Math.abs(py - fy) < 0.0005;
 	}
 
 	function closePolygon() {
@@ -86,11 +93,11 @@
 		}
 	}
 
-	export function handleClick(e: { lngLat: { lng: number; lat: number } }) {
+	export function handleClick(e: { lngLat: { lng: number; lat: number }; point?: { x: number; y: number } }) {
 		if (!activeTools.includes(toolStore.activeTool)) return;
 		const point: LngLat = [e.lngLat.lng, e.lngLat.lat];
 
-		if (isNearFirst(point)) {
+		if (isNearFirst(point, e)) {
 			closePolygon();
 			return;
 		}
@@ -152,10 +159,10 @@
 			type: 'circle',
 			source: DOT_SOURCE,
 			paint: {
-				'circle-radius': 5,
-				'circle-color': strokeColor,
-				'circle-stroke-color': '#ffffff',
-				'circle-stroke-width': 1.5
+				'circle-radius': ['case', ['==', ['get', 'index'], 0], 8, 5],
+				'circle-color': ['case', ['==', ['get', 'index'], 0], '#ffffff', strokeColor],
+				'circle-stroke-color': ['case', ['==', ['get', 'index'], 0], strokeColor, '#ffffff'],
+				'circle-stroke-width': 2
 			}
 		});
 	});
