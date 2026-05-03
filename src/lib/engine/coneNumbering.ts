@@ -58,8 +58,30 @@ function nearestNeighborOrder(cones: ConeData[]): ConeData[] {
 	return result;
 }
 
+function segmentsIntersect(a1: LngLat, a2: LngLat, b1: LngLat, b2: LngLat): boolean {
+	const d1x = a2[0] - a1[0], d1y = a2[1] - a1[1];
+	const d2x = b2[0] - b1[0], d2y = b2[1] - b1[1];
+	const cross = d1x * d2y - d1y * d2x;
+	if (Math.abs(cross) < 1e-12) return false;
+	const dx = b1[0] - a1[0], dy = b1[1] - a1[1];
+	const t = (dx * d2y - dy * d2x) / cross;
+	const u = (dx * d1y - dy * d1x) / cross;
+	return t >= 0 && t <= 1 && u >= 0 && u <= 1;
+}
+
 function linePassesThroughZone(line: LngLat[], zone: WorkerZoneData): boolean {
-	return line.some(pt => pointInPolygon(pt, zone.vertices));
+	// Check if any waypoint is inside the zone
+	if (line.some(pt => pointInPolygon(pt, zone.vertices))) return true;
+
+	// Check if any line segment intersects any zone boundary edge
+	const verts = zone.vertices;
+	for (let i = 0; i < line.length - 1; i++) {
+		for (let j = 0; j < verts.length; j++) {
+			const k = (j + 1) % verts.length;
+			if (segmentsIntersect(line[i], line[i + 1], verts[j], verts[k])) return true;
+		}
+	}
+	return false;
 }
 
 export function numberCones(
