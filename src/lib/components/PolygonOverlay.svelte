@@ -3,6 +3,7 @@
 	import { mapStore } from '$lib/stores/mapStore.svelte';
 	import { toolStore } from '$lib/stores/toolStore.svelte';
 	import type { LngLat } from '$lib/types/course';
+	import type mapboxgl from 'mapbox-gl';
 	import { polygonToGeoJSON, lineToGeoJSON, verticesCollection } from '$lib/engine/polygonEngine';
 
 	const {
@@ -32,13 +33,15 @@
 	let vertices = $state<LngLat[]>([]);
 	let mousePos = $state<LngLat | null>(null);
 
-	const CLOSE_THRESHOLD = 0.0002;
-
 	function isNearFirst(point: LngLat): boolean {
 		if (vertices.length < 3) return false;
-		const [fx, fy] = vertices[0];
-		const [px, py] = point;
-		return Math.abs(px - fx) < CLOSE_THRESHOLD && Math.abs(py - fy) < CLOSE_THRESHOLD;
+		const map = mapStore.map as mapboxgl.Map | null;
+		if (!map || !('project' in map)) return false;
+		const firstPixel = map.project(vertices[0] as [number, number]);
+		const clickPixel = map.project(point as [number, number]);
+		const dx = firstPixel.x - clickPixel.x;
+		const dy = firstPixel.y - clickPixel.y;
+		return Math.sqrt(dx * dx + dy * dy) < 15;
 	}
 
 	function closePolygon() {
