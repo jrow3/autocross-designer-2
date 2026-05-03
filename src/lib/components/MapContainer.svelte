@@ -561,6 +561,7 @@ import SketchOverlay from './SketchOverlay.svelte';
 			touchPitch: false
 		});
 
+		map.doubleClickZoom.disable();
 		map.addControl(new mapboxgl.NavigationControl(), 'bottom-right');
 
 		map.addControl(new MapboxGeocoder({
