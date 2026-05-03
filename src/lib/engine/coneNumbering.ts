@@ -94,7 +94,7 @@ export function numberCones(
 	const hasLine = linePoints.length >= 2;
 
 	for (const zone of workerZones) {
-		const zoneCones = cones.filter(c => pointInPolygon(c.lngLat, zone.vertices));
+		const zoneCones = cones.filter(c => c.type !== 'pointer' && pointInPolygon(c.lngLat, zone.vertices));
 		if (zoneCones.length === 0) continue;
 
 		let ordered: ConeData[];

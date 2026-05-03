@@ -1,4 +1,83 @@
 import { mapStore } from '$lib/stores/mapStore.svelte';
+import { courseStore } from '$lib/stores/courseStore.svelte';
+import type { ConeData } from '$lib/types/course';
+
+function coneColor(type: string): string {
+	switch (type) {
+		case 'pointer': return '#ef4444';
+		case 'start-cone': return '#22c55e';
+		case 'finish-cone': return '#ffffff';
+		case 'trailer': return '#6b7280';
+		default: return '#f97316';
+	}
+}
+
+function drawMarkersOnCanvas(canvas: HTMLCanvasElement, map: any): void {
+	const ctx = canvas.getContext('2d');
+	if (!ctx || typeof map.project !== 'function') return;
+
+	const ratio = canvas.width / map.getCanvas().clientWidth;
+
+	// Draw cones
+	for (const cone of courseStore.course.cones) {
+		const px = map.project(cone.lngLat as [number, number]);
+		const x = px.x * ratio;
+		const y = px.y * ratio;
+		const r = (cone.type === 'trailer' ? 6 : 5) * ratio;
+
+		ctx.beginPath();
+		ctx.arc(x, y, r, 0, Math.PI * 2);
+		ctx.fillStyle = coneColor(cone.type);
+		ctx.fill();
+		ctx.strokeStyle = '#ffffff';
+		ctx.lineWidth = 1.5 * ratio;
+		ctx.stroke();
+	}
+
+	// Draw workers
+	for (const w of courseStore.course.workers) {
+		const px = map.project(w.lngLat as [number, number]);
+		const x = px.x * ratio;
+		const y = px.y * ratio;
+		const r = 8 * ratio;
+
+		ctx.beginPath();
+		ctx.arc(x, y, r, 0, Math.PI * 2);
+		ctx.fillStyle = '#7c3aed';
+		ctx.fill();
+		ctx.strokeStyle = '#ffffff';
+		ctx.lineWidth = 1.5 * ratio;
+		ctx.stroke();
+
+		ctx.fillStyle = '#ffffff';
+		ctx.font = `bold ${8 * ratio}px sans-serif`;
+		ctx.textAlign = 'center';
+		ctx.textBaseline = 'middle';
+		ctx.fillText(String(w.number), x, y);
+	}
+
+	// Draw notes
+	for (const n of courseStore.course.notes) {
+		const px = map.project(n.lngLat as [number, number]);
+		const x = px.x * ratio;
+		const y = px.y * ratio;
+		const r = 8 * ratio;
+
+		ctx.beginPath();
+		ctx.arc(x, y, r, 0, Math.PI * 2);
+		ctx.fillStyle = '#0ea5e9';
+		ctx.fill();
+		ctx.strokeStyle = '#ffffff';
+		ctx.lineWidth = 1.5 * ratio;
+		ctx.stroke();
+
+		ctx.fillStyle = '#ffffff';
+		ctx.font = `bold ${8 * ratio}px sans-serif`;
+		ctx.textAlign = 'center';
+		ctx.textBaseline = 'middle';
+		ctx.fillText(String(n.number), x, y);
+	}
+}
 
 export async function captureMapCanvas(): Promise<HTMLCanvasElement | null> {
 	const map = mapStore.map;
@@ -12,6 +91,7 @@ export async function captureMapCanvas(): Promise<HTMLCanvasElement | null> {
 		copy.height = mapCanvas.height;
 		const ctx = copy.getContext('2d');
 		if (ctx) ctx.drawImage(mapCanvas, 0, 0);
+		drawMarkersOnCanvas(copy, map);
 		return copy;
 	}
 
