@@ -43,8 +43,8 @@ import SketchOverlay from './SketchOverlay.svelte';
 		return Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
 	}
 
-	// Mode selection
-	let showBanner = $state(true);
+	// Mode selection — skip banner if coming from shared link "Edit a Copy"
+	let showBanner = $state(!sessionStorage.getItem('skipBanner'));
 
 	// Multi-click tool state
 	let gateCenter: LngLat | null = $state(null);
@@ -820,6 +820,10 @@ import SketchOverlay from './SketchOverlay.svelte';
 	}
 
 	onMount(() => {
+		if (sessionStorage.getItem('skipBanner')) {
+			sessionStorage.removeItem('skipBanner');
+			handleModeSelect('map');
+		}
 		return () => {
 			mapStore.map?.remove();
 		};

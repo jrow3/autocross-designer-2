@@ -35,6 +35,7 @@
 	function editCopy() {
 		autosave(courseStore.course);
 		sessionStorage.setItem('fitCourseOnLoad', 'true');
+		sessionStorage.setItem('skipBanner', 'true');
 		goto('/');
 	}
 
@@ -61,33 +62,6 @@
 		map.on('load', () => {
 			mapStore.setMap(map);
 			mapStore.setMode('map');
-
-			// Read course data here to guarantee it's loaded
-			const course = courseStore.course;
-			const pts: [number, number][] = [];
-			for (const c of course.cones) pts.push(c.lngLat as [number, number]);
-			for (const wp of course.drivingLine) pts.push(wp.lngLat as [number, number]);
-			for (const w of course.workers) pts.push(w.lngLat as [number, number]);
-			for (const n of course.notes) pts.push(n.lngLat as [number, number]);
-			for (const m of course.measurements) { pts.push(m.p1 as [number, number]); pts.push(m.p2 as [number, number]); }
-
-			if (pts.length > 0) {
-				let minLng = Infinity, maxLng = -Infinity, minLat = Infinity, maxLat = -Infinity;
-				for (const [lng, lat] of pts) {
-					if (lng < minLng) minLng = lng;
-					if (lng > maxLng) maxLng = lng;
-					if (lat < minLat) minLat = lat;
-					if (lat > maxLat) maxLat = lat;
-				}
-				map.fitBounds(
-					[[minLng, minLat], [maxLng, maxLat]],
-					{ padding: 80, maxZoom: 19, animate: false }
-				);
-			} else {
-				// No course elements, use saved map center
-				map.jumpTo({ center: course.mapCenter as [number, number], zoom: course.mapZoom });
-			}
-
 			layerStore.setVisible('sketches', false);
 		});
 
