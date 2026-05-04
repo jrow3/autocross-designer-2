@@ -5,7 +5,7 @@
 	import { mapStore } from '$lib/stores/mapStore.svelte';
 	import { courseStore } from '$lib/stores/courseStore.svelte';
 	import { layerStore } from '$lib/stores/layerStore.svelte';
-	import { saveLocal } from '$lib/services/courseService';
+	import { saveLocal, autosave } from '$lib/services/courseService';
 	import ConeMarker from './ConeMarker.svelte';
 	import WorkerMarker from './WorkerMarker.svelte';
 	import NoteMarker from './NoteMarker.svelte';
@@ -33,8 +33,7 @@
 	];
 
 	function editCopy() {
-		const name = `${title} (copy)`;
-		saveLocal(name, courseStore.course);
+		autosave(courseStore.course);
 		sessionStorage.setItem('fitCourseOnLoad', 'true');
 		goto('/');
 	}
@@ -47,8 +46,8 @@
 		const map = new mapboxgl.Map({
 			container,
 			style: 'mapbox://styles/mapbox/satellite-streets-v12',
-			center: [0, 0],
-			zoom: 2,
+			center: courseStore.course.mapCenter as [number, number],
+			zoom: courseStore.course.mapZoom,
 			minZoom: 10,
 			maxZoom: 22,
 			preserveDrawingBuffer: true,
