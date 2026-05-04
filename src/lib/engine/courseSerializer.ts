@@ -84,7 +84,11 @@ function sanitizePrototypeKeys(obj: Record<string, unknown>, depth: number): voi
 }
 
 export function deserialize(raw: unknown): CourseData {
-	const data = validate(migrate(raw as Record<string, unknown>));
+	let parsed = raw;
+	if (typeof parsed === 'string') {
+		try { parsed = JSON.parse(parsed); } catch { parsed = {}; }
+	}
+	const data = validate(migrate(parsed as Record<string, unknown>));
 	const empty = emptyCourse();
 	return {
 		...empty,
