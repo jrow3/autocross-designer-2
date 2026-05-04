@@ -44,11 +44,25 @@
 		mapboxgl.accessToken = token;
 		mapboxgl.workerUrl = '/mapbox-gl-csp-worker.js';
 
+		// Compute initial center from course elements, not saved mapCenter
+		const course = courseStore.course;
+		const initPoints: [number, number][] = [];
+		for (const c of course.cones) initPoints.push(c.lngLat as [number, number]);
+		for (const wp of course.drivingLine) initPoints.push(wp.lngLat as [number, number]);
+		for (const w of course.workers) initPoints.push(w.lngLat as [number, number]);
+
+		let initCenter = course.mapCenter as [number, number];
+		if (initPoints.length > 0) {
+			let sumLng = 0, sumLat = 0;
+			for (const [lng, lat] of initPoints) { sumLng += lng; sumLat += lat; }
+			initCenter = [sumLng / initPoints.length, sumLat / initPoints.length];
+		}
+
 		const map = new mapboxgl.Map({
 			container,
 			style: 'mapbox://styles/mapbox/satellite-streets-v12',
-			center: courseStore.course.mapCenter as [number, number],
-			zoom: courseStore.course.mapZoom,
+			center: initCenter,
+			zoom: course.mapZoom,
 			minZoom: 10,
 			maxZoom: 22,
 			preserveDrawingBuffer: true,
@@ -63,16 +77,9 @@
 			mapStore.setMap(map);
 			mapStore.setMode('map');
 
-			const course = courseStore.course;
-			const points: [number, number][] = [];
-			for (const c of course.cones) points.push(c.lngLat as [number, number]);
-			for (const wp of course.drivingLine) points.push(wp.lngLat as [number, number]);
-			for (const n of course.notes) points.push(n.lngLat as [number, number]);
-			for (const w of course.workers) points.push(w.lngLat as [number, number]);
-
-			if (points.length > 0) {
+			if (initPoints.length > 0) {
 				let minLng = Infinity, maxLng = -Infinity, minLat = Infinity, maxLat = -Infinity;
-				for (const [lng, lat] of points) {
+				for (const [lng, lat] of initPoints) {
 					if (lng < minLng) minLng = lng;
 					if (lng > maxLng) maxLng = lng;
 					if (lat < minLat) minLat = lat;
