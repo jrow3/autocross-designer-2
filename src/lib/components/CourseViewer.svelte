@@ -33,7 +33,7 @@
 	];
 
 	function editCopy() {
-		// courseStore already has the data — it persists across client-side navigation
+		sessionStorage.setItem('editCopyCourse', JSON.stringify(courseStore.course));
 		sessionStorage.setItem('fitCourseOnLoad', 'true');
 		sessionStorage.setItem('skipBanner', 'true');
 		goto('/');

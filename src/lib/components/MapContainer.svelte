@@ -655,8 +655,12 @@ import SketchOverlay from './SketchOverlay.svelte';
 	});
 
 	function handleModeSelect(mode: 'map' | 'image', imageSrc?: string, _fileName?: string) {
-		// Load autosaved course if available (skip if coming from shared link — store already has data)
-		if (!fromSharedLink) {
+		// Load course data: from Edit a Copy sessionStorage, or from autosave
+		const editCopyRaw = sessionStorage.getItem('editCopyCourse');
+		if (editCopyRaw) {
+			sessionStorage.removeItem('editCopyCourse');
+			courseStore.load(deserialize(JSON.parse(editCopyRaw)));
+		} else if (!fromSharedLink) {
 			const saved = loadAutosave();
 			if (saved) {
 				courseStore.load(deserialize(saved));

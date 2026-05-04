@@ -280,6 +280,7 @@
 		border-radius: 50%;
 		cursor: pointer;
 		pointer-events: auto;
+		transform: scale(var(--marker-scale, 1));
 	}
 
 	:global(.measurement-endpoint-snapped) {
