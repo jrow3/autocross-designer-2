@@ -44,7 +44,8 @@ import SketchOverlay from './SketchOverlay.svelte';
 	}
 
 	// Mode selection — skip banner if coming from shared link "Edit a Copy"
-	let showBanner = $state(!sessionStorage.getItem('skipBanner'));
+	let fromSharedLink = !!sessionStorage.getItem('skipBanner');
+	let showBanner = $state(!fromSharedLink);
 
 	// Multi-click tool state
 	let gateCenter: LngLat | null = $state(null);
@@ -654,11 +655,14 @@ import SketchOverlay from './SketchOverlay.svelte';
 	});
 
 	function handleModeSelect(mode: 'map' | 'image', imageSrc?: string, _fileName?: string) {
-		// Load autosaved course if available
-		const saved = loadAutosave();
-		if (saved) {
-			courseStore.load(deserialize(saved));
+		// Load autosaved course if available (skip if coming from shared link — store already has data)
+		if (!fromSharedLink) {
+			const saved = loadAutosave();
+			if (saved) {
+				courseStore.load(deserialize(saved));
+			}
 		}
+		fromSharedLink = false;
 		showBanner = false;
 		mapStore.setMode(mode);
 

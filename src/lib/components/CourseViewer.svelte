@@ -5,7 +5,7 @@
 	import { mapStore } from '$lib/stores/mapStore.svelte';
 	import { courseStore } from '$lib/stores/courseStore.svelte';
 	import { layerStore } from '$lib/stores/layerStore.svelte';
-	import { saveLocal, autosave } from '$lib/services/courseService';
+	import { saveLocal } from '$lib/services/courseService';
 	import ConeMarker from './ConeMarker.svelte';
 	import WorkerMarker from './WorkerMarker.svelte';
 	import NoteMarker from './NoteMarker.svelte';
@@ -33,7 +33,7 @@
 	];
 
 	function editCopy() {
-		autosave(courseStore.course);
+		// courseStore already has the data — it persists across client-side navigation
 		sessionStorage.setItem('fitCourseOnLoad', 'true');
 		sessionStorage.setItem('skipBanner', 'true');
 		goto('/');
@@ -59,10 +59,25 @@
 
 		map.addControl(new mapboxgl.NavigationControl(), 'top-left');
 
+		const BASE_ZOOM = 17;
+
+		function updateScale() {
+			const z = map.getZoom();
+			const scale = Math.pow(2, z - BASE_ZOOM) * 0.1 * mapStore.markerSize;
+			container?.style.setProperty('--marker-scale', String(scale));
+		}
+
 		map.on('load', () => {
 			mapStore.setMap(map);
 			mapStore.setMode('map');
+			mapStore.setZoom(map.getZoom());
+			updateScale();
 			layerStore.setVisible('sketches', false);
+		});
+
+		map.on('zoom', () => {
+			mapStore.setZoom(map.getZoom());
+			updateScale();
 		});
 
 		return () => {
@@ -138,6 +153,7 @@
 	.map-container {
 		width: 100%;
 		height: 100%;
+		--marker-scale: 1;
 	}
 
 	.course-title {
