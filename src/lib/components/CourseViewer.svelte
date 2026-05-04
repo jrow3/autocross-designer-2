@@ -44,25 +44,11 @@
 		mapboxgl.accessToken = token;
 		mapboxgl.workerUrl = '/mapbox-gl-csp-worker.js';
 
-		// Compute initial center from course elements, not saved mapCenter
-		const course = courseStore.course;
-		const initPoints: [number, number][] = [];
-		for (const c of course.cones) initPoints.push(c.lngLat as [number, number]);
-		for (const wp of course.drivingLine) initPoints.push(wp.lngLat as [number, number]);
-		for (const w of course.workers) initPoints.push(w.lngLat as [number, number]);
-
-		let initCenter = course.mapCenter as [number, number];
-		if (initPoints.length > 0) {
-			let sumLng = 0, sumLat = 0;
-			for (const [lng, lat] of initPoints) { sumLng += lng; sumLat += lat; }
-			initCenter = [sumLng / initPoints.length, sumLat / initPoints.length];
-		}
-
 		const map = new mapboxgl.Map({
 			container,
 			style: 'mapbox://styles/mapbox/satellite-streets-v12',
-			center: initCenter,
-			zoom: course.mapZoom,
+			center: [0, 0],
+			zoom: 2,
 			minZoom: 10,
 			maxZoom: 22,
 			preserveDrawingBuffer: true,
@@ -77,9 +63,18 @@
 			mapStore.setMap(map);
 			mapStore.setMode('map');
 
-			if (initPoints.length > 0) {
+			// Read course data here to guarantee it's loaded
+			const course = courseStore.course;
+			const pts: [number, number][] = [];
+			for (const c of course.cones) pts.push(c.lngLat as [number, number]);
+			for (const wp of course.drivingLine) pts.push(wp.lngLat as [number, number]);
+			for (const w of course.workers) pts.push(w.lngLat as [number, number]);
+			for (const n of course.notes) pts.push(n.lngLat as [number, number]);
+			for (const m of course.measurements) { pts.push(m.p1 as [number, number]); pts.push(m.p2 as [number, number]); }
+
+			if (pts.length > 0) {
 				let minLng = Infinity, maxLng = -Infinity, minLat = Infinity, maxLat = -Infinity;
-				for (const [lng, lat] of initPoints) {
+				for (const [lng, lat] of pts) {
 					if (lng < minLng) minLng = lng;
 					if (lng > maxLng) maxLng = lng;
 					if (lat < minLat) minLat = lat;
@@ -89,6 +84,9 @@
 					[[minLng, minLat], [maxLng, maxLat]],
 					{ padding: 80, maxZoom: 19, animate: false }
 				);
+			} else {
+				// No course elements, use saved map center
+				map.jumpTo({ center: course.mapCenter as [number, number], zoom: course.mapZoom });
 			}
 
 			layerStore.setVisible('sketches', false);
